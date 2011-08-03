@@ -2,9 +2,7 @@ package edu.illinois.medusa;
 
 import com.caringo.client.ScspResponse;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.OutputStream;
 
 /**
  * Created by IntelliJ IDEA.

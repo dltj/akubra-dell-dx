@@ -6,8 +6,6 @@ import org.akubraproject.impl.StreamManager;
 
 import java.io.IOException;
 import java.net.URI;
-import java.security.ProtectionDomain;
-import java.sql.DatabaseMetaData;
 import java.util.Map;
 import javax.transaction.Transaction;
 
