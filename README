@@ -12,7 +12,7 @@ added methods). Since I don't know their IP status either, they
 aren't included either. There is merely a system dependency set
 up in the pom.xml file.
 
-So as things are now one needs to drop the CAStorSDK.jar and their
-third party jars from the Caringo SDK into lib and set up the project
-to build with them. Perhaps someone with more java/maven experience
-can come up with a better way to do this.
+So as things are now one needs to drop the CAStorSDK.jar and the
+third party jars from the Caringo SDK into lib. As I understand maven
+it should then correctly build. Perhaps someone with more java/maven
+experience can come up with a better way to do this.
