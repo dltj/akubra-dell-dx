@@ -84,6 +84,8 @@
             <artifactId>jmdns</artifactId>
             <version>3.2.2</version>
         </dependency>
+        <!-- Some of the code for this is proprietary, so we include it as a system dependency and
+        it'll need to be dropped into the lib directory before actually building anything. -->
         <dependency>
             <groupId>com.caringo</groupId>
             <artifactId>castor-sdk</artifactId>
