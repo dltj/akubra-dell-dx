@@ -1,0 +1,10 @@
+This is an initial attempt to get our Caringo adapter for akubra
+packaged up as a maven project.
+
+As is I believe it contains all of our code and the dependencies except for the
+Caringo code. As far as I can tell most, but not all, of that is open source, but
+I think that we need some of the proprietary stuff.
+
+So as things are now one needs to drop the CAStorSDK.jar from the Caringo SDK into
+lib and set up the project to build with it. Perhaps someone with more java/maven
+experience can come up with a better way to do this.
