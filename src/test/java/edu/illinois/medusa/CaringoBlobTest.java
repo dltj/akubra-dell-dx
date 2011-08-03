@@ -77,9 +77,9 @@ public class CaringoBlobTest {
             getConnection();
             writeTestBlob(getTestBytes());
             CaringoBlob blob = getTestBlob();
-            Assert.assertEquals(true, blob.exists());
+            Assert.assertTrue(blob.exists());
             deleteTestBlob();
-            Assert.assertEquals(false, blob.exists());
+            Assert.assertFalse(blob.exists());
         } finally {
             deleteTestBlob();
         }
@@ -102,7 +102,7 @@ public class CaringoBlobTest {
     @Test
     public void testNeverExisted() throws Exception {
         getConnection();
-        Assert.assertEquals(false, connection.getBlob(URI.create("never-created-blob"), null).exists());
+        Assert.assertFalse(connection.getBlob(URI.create("never-created-blob"), null).exists());
     }
 
     @Test
