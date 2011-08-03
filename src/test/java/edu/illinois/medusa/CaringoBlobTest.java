@@ -259,11 +259,7 @@ public class CaringoBlobTest {
         Assert.assertFalse(succeeded);
     }
 
-    //It's possible that this test will expose that we need to handle streams differently to accomodate large
-    //objects, e.g. instead of in-memory streams we might need to attach them to files or something.
-    //TODO Indeed, this blows up for (with out of heap space) when I try to write my 100MB stream here.
-    //So it'll be necessary to think of how we might manage the streams not completely in memory.
-    //If you set the heap size very large (e.g. -Xmx3G) then this test may work.
+    //This can be manually set to various sizes
     @Test
     public void testLargeObject() throws Exception {
         getConnection();
