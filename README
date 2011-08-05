@@ -29,3 +29,10 @@ there may be version conflicts it would be possible to change the
 dependency scope to provided (most likely). This would leave it out of the
 jar that is produced. E.g. slf4j seems to fall into this category. It 
 may require some experimentation to figure out exactly how it shoule be.
+It may also be useful (or better) to use dependency exclusions to do
+this. I don't have a good feel for that yet. I think in that case we'd
+have to add in a (provided) dependency to our pom.xml to replace the
+exclusion and better correspond to what fedora uses. It'd be ideal to
+let the dependency come through when we're compiling and testing, but
+prevent it from being bundled, but I'm not sure how to accomplish that
+for something being required by a different project.
