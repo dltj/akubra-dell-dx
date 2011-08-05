@@ -30,7 +30,7 @@ public class CaringoBlobTest {
         store = CaringoBlobStoreTest.newStore();
     }
 
-    private void getConnection() {
+    private void getConnection() throws IOException {
         connection = store.openConnection();
     }
 
