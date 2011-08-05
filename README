@@ -9,10 +9,23 @@ proprietary stuff.
 Also Caringo included third party jars in their SDK. However, 
 some of these appear to vary from the standard versions (e.g.
 added methods). Since I don't know their IP status either, they
-aren't included either. There is merely a system dependency set
-up in the pom.xml file.
+aren't included either.
 
-So as things are now one needs to drop the CAStorSDK.jar and the
-third party jars from the Caringo SDK into lib. As I understand maven
-it should then correctly build. Perhaps someone with more java/maven
-experience can come up with a better way to do this.
+After some fooling around with this, I think that the way to get
+all this to work with maven is the following. Take each of Caringo's
+jar and install them into the local maven repository. 
+
+E.g. 
+mvn install:install-file -Dfile=/path/to/jmdns-2.1.jar -DgroupId=com.caringo
+-DartifactId=jmdns -Dversion=2.1 -Dpackaging=jar
+
+(for the CaringoSDK itself I'd mint a version of 1.0)
+
+Then they can be declared as dependencies in the normal way and things
+should work.
+
+Note that for anything that seems to be already in the fedora set up where
+there may be version conflicts it would be possible to change the
+dependency scope to provided (most likely). This would leave it out of the
+jar that is produced. E.g. slf4j seems to fall into this category. It 
+may require some experimentation to figure out exactly how it shoule be.
