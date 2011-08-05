@@ -19,22 +19,30 @@ import java.util.Map;
 
 public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
-    protected CaringoBlobStore owner;
+    protected static final FileWriter logFile = makeLog();
 
-    protected CaringoBlobStoreConnection(CaringoBlobStore owner, StreamManager streamManager) {
+    protected static FileWriter makeLog() {
+        try {
+        return new FileWriter(new File("/tmp/fedora-access.log"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected CaringoBlobStore owner;
+    protected ScspClient caringoClient;
+
+    protected CaringoBlobStoreConnection(CaringoBlobStore owner, StreamManager streamManager) throws IOException {
         super(owner, streamManager);
         this.owner = owner;
+        this.caringoClient = owner.getCaringoClient();
+        this.caringoClient.start();
     }
 
     @Override
     public CaringoBlob getBlob(URI blobId, Map<String, String> hints) {
         //use URI to lookup blob from Caringo server
         //for now no use of hints
-        //TODO we may need to translate (bijectively) between the ID for Caringo and that that Fedora provides -
-        //need to check how Fedora manages the ID, what Caringo allows, etc.
-        //I was thinking on the Caringo side we'd use something like:
-        // <bucketName>/translated-fedora-id
-
         return new CaringoBlob(this, blobId);
     }
 
@@ -68,7 +76,8 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         CaringoReadResponse caringoReadResponse;
         try {
             ensureOpen();
-            File tmpFile = File.createTempFile(id.toString(), ".blob");
+            //File tmpFile = File.createTempFile(id.toString(), ".blob");
+            File tmpFile = File.createTempFile("fedora-input", ".blob");
             tmpFile.deleteOnExit();
             output = new FileOutputStream(tmpFile);
             ScspResponse response = this.getCaringoClient().read("", objectPath(id), output,
@@ -122,10 +131,40 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
     //Return caringo path incorporating bucket
     protected String objectPath(URI id) {
-        return "/" + this.bucketName() + "/" + id.toString();
+        String path = "/" + this.bucketName() + "/" + id.toString();
+        try {
+        logFile.write(path);
+        logFile.write("\n");
+        logFile.flush();
+        } catch (Exception e) {}
+        return path;
     }
 
-    private ScspClient getCaringoClient() throws IOException {
-        return owner.getCaringoClient();
+    protected void ensureOpen() {
+        try {
+            if (!this.caringoClient.isStarted()) {
+                this.caringoClient.start();
+                closed = false;
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException();
+        }
+        super.ensureOpen();
+    }
+
+    public boolean isClosed() {
+        if (!this.caringoClient.isStarted())
+            closed = true;
+        return super.isClosed();
+    }
+
+    public void close() {
+        if (this.caringoClient.isStarted())
+            this.caringoClient.stop();
+        super.close();
+    }
+
+    private ScspClient getCaringoClient() {
+        return this.caringoClient;
     }
 }

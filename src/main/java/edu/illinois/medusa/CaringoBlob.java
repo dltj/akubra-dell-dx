@@ -57,6 +57,20 @@ public class CaringoBlob extends AbstractBlob {
         return this.owner.info(this.id);
     }
 
+    /*
+    TODO
+    I wonder if we could do better on this. As is, it pulls the entire stream from Caringo, writes
+    to a temporary file, and the provided input stream is an InputStream on that file.
+    One possibility (depending on what the requirements of this InputStream are) might be to
+    use the ability to fetch pieces of a datastream (does the CaringoSDK support this) and expose
+    them via a circular buffer or piped input stream. So maybe create a piped input stream, hook it
+    to a piped output stream. Spin off a thread that does an info on the object to get the size then
+    reads it piece by piece and writes to the pipe. Overall this might be less efficient, but for
+    large files data would start to appear earlier.
+
+    Probably the corresponding idea for writing to Caringo is less important, since there's not really
+    any possible visible result until the entire operation is complete.
+     */
     @Override
     public InputStream openInputStream() throws IOException, MissingBlobException {
         CaringoReadResponse response = this.owner.read(this.id);
@@ -75,7 +89,8 @@ public class CaringoBlob extends AbstractBlob {
 
     @Override
     public OutputStream openOutputStream(long estimated_length, boolean overwrite) throws IOException, DuplicateBlobException {
-        File tempFile = File.createTempFile(this.getId().toString(), ".blob");
+        //File tempFile = File.createTempFile(this.getId().toString(), ".blob");
+        File tempFile = File.createTempFile("fedora-out", ".blob");
         //Just to make sure that the file is cleaned up - however, we do it manually when the stream opened on it
         //is closed. Hopefully this doesn't create problems, i.e. deleteFileOnExit is still okay if the file
         //is already gone.

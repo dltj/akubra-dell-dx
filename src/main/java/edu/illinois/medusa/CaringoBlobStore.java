@@ -21,7 +21,6 @@ public class CaringoBlobStore extends AbstractBlobStore {
     protected String bucketName;
     protected String hostUrl;
     protected String domainName;
-    protected ScspClient caringoClient;
     protected int port;
     protected int maxConnectionPoolSize;
     protected int maxRetries;
@@ -57,24 +56,21 @@ public class CaringoBlobStore extends AbstractBlobStore {
         this.connectionTimeout = connectionTimeout;
         this.poolTimeout = poolTimeout;
         this.locatorRetryTimeout = locatorRetryTimeout;
-        this.caringoClient = null;
     }
 
     @Override
-    public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) {
+    public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {
         if (tx != null) {
             throw new UnsupportedOperationException();
         }
         return new CaringoBlobStoreConnection(this, streamManager);
     }
 
-    public CaringoBlobStoreConnection openConnection() {
+    public CaringoBlobStoreConnection openConnection() throws IOException {
         return this.openConnection(null, null);
     }
 
-    //TODO eliminate magic numbers, possibly offering to make them more options
-    //TODO possibly ensure existence of bucket before returning client
-    private ScspClient newCaringoClient() {
+    public ScspClient getCaringoClient() throws IOException {
         String[] hosts = new String[1];
         hosts[0] = hostUrl;
         ScspClient client = new ScspClient(hosts, port, maxConnectionPoolSize, maxRetries,
@@ -82,14 +78,6 @@ public class CaringoBlobStore extends AbstractBlobStore {
         if (domainName != null)
             client.setHostHeaderValue(domainName);
         return client;
-    }
-
-    public ScspClient getCaringoClient() throws IOException {
-        if (this.caringoClient == null || !this.caringoClient.isStarted()) {
-            this.caringoClient = newCaringoClient();
-            this.caringoClient.start();
-        }
-        return this.caringoClient;
     }
 
 }
