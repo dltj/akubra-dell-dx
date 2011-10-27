@@ -2,7 +2,6 @@ package edu.illinois.medusa;
 
 import com.caringo.client.ScspHeaders;
 
-import javax.print.DocFlavor;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -17,19 +16,43 @@ import java.util.Map;
  */
 public class CaringoHints extends HashMap<String, String> {
 
+    protected CaringoHints() {
+        super();
+    }
+
+    protected CaringoHints(Map<String, String> hints) {
+        super(hints);
+    }
 
     //Merge some supplied hints. Note that supplied hints take precedence over
-    //hints already in the hash
+    //hints already in the hash. Note also that we provide different methods here
+    //depending on whether hints is already a CaringoHints or not. If not, we assume
+    //that the values are single and have no URL encoding.
     public CaringoHints merge_hints(Map<String, String> hints) {
-        if (hints != null)
-            this.putAll(hints);
+        if (hints != null) {
+            for (Map.Entry<String, String> entry : hints.entrySet()) {
+                this.addHint(entry.getKey(), entry.getValue());
+            }
+        }
+        return this;
+    }
+
+    //If we are trying to merge other CaringoHints in then they are already in the quoted form, so
+    //we want to take that into account.
+    public CaringoHints merge_hints(CaringoHints hints) {
+        if (hints != null) {
+            for (String key : hints.keySet()) {
+                String[] values = hints.getValues(key);
+                for (String value : values) {
+                    this.addHint(key, value);
+                }
+            }
+        }
         return this;
     }
 
     public CaringoHints copy() {
-        CaringoHints copy = new CaringoHints();
-        copy.putAll(this);
-        return copy;
+        return new CaringoHints(this);
     }
 
     public CaringoHints copy_and_merge_hints(Map<String, String> hints) {
@@ -46,23 +69,31 @@ public class CaringoHints extends HashMap<String, String> {
     }
 
     public void addHint(String key, String value) {
-        String quotedValue = URLEncoder.encode(value);
-        if (this.containsKey(key)) {
-            this.put(key, this.get(key) + ":" + quotedValue);
-        } else {
-            this.put(key, quotedValue);
+        try {
+            String quotedValue = URLEncoder.encode(value, "UTF-8");
+            if (this.containsKey(key)) {
+                this.put(key, this.get(key) + ":" + quotedValue);
+            } else {
+                this.put(key, quotedValue);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 
     public String[] getValues(String key) {
-        if (this.containsKey(key)) {
-            String[] values = this.get(key).split(":");
-            for (int i = 0; i < values.length; i++) {
-                values[i] = URLDecoder.decode(values[i]);
+        try {
+            if (this.containsKey(key)) {
+                String[] values = this.get(key).split(":");
+                for (int i = 0; i < values.length; i++) {
+                    values[i] = URLDecoder.decode(values[i], "UTF-8");
+                }
+                return values;
+            } else {
+                return (new String[0]);
             }
-            return values;
-        } else {
-            return (new String[0]);
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 
