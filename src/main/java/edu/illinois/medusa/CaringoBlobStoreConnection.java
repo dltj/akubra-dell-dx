@@ -39,7 +39,6 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         this.caringoClient.start();
     }
 
-    @Override
     public CaringoBlob getBlob(URI blobId, Map<String, String> hints) {
         //use URI to lookup blob from Caringo server
         //for now no use of hints
@@ -51,12 +50,10 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     //get metadata for all the items in the bucket. However, I'm not totally sure all of that goes. We'll want
     //to figure this out in order to allow fedora rebuilding, but that may wait until we have our local cluster
     //working.
-    @Override
     public Iterator<URI> listBlobIds(String filterPrefix) {
         throw new UnsupportedOperationException("blob-id listing not supported");
     }
 
-    @Override
     public void sync() {
         throw new UnsupportedOperationException("sync'ing not supported");
     }

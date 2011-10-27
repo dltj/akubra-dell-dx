@@ -31,7 +31,6 @@ public class CaringoBlob extends AbstractBlob {
         return this.owner.getStreamManager();
     }
 
-    @Override
     public boolean exists() throws IOException {
         CaringoInfoResponse response = this.info();
         if (response.notFound())
@@ -41,7 +40,6 @@ public class CaringoBlob extends AbstractBlob {
         throw new IOException();
     }
 
-    @Override
     public long getSize() throws IOException, MissingBlobException {
         CaringoInfoResponse response = this.info();
         if (response.notFound()) {
@@ -71,7 +69,6 @@ public class CaringoBlob extends AbstractBlob {
     Probably the corresponding idea for writing to Caringo is less important, since there's not really
     any possible visible result until the entire operation is complete.
      */
-    @Override
     public InputStream openInputStream() throws IOException, MissingBlobException {
         CaringoReadResponse response = this.owner.read(this.id);
         if (response.notFound()) {
@@ -87,7 +84,6 @@ public class CaringoBlob extends AbstractBlob {
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
     }
 
-    @Override
     public OutputStream openOutputStream(long estimated_length, boolean overwrite) throws IOException, DuplicateBlobException {
         //File tempFile = File.createTempFile(this.getId().toString(), ".blob");
         File tempFile = File.createTempFile("fedora-out", ".blob");
@@ -99,14 +95,12 @@ public class CaringoBlob extends AbstractBlob {
         return this.getStreamManager().manageOutputStream(this.owner, new BufferedOutputStream(outputStream));
     }
 
-    @Override
     public void delete() throws IOException {
         CaringoDeleteResponse response = this.owner.delete(this.id);
         if (!response.ok() && !response.notFound())
             throw new IOException();
     }
 
-    @Override
     public Blob moveTo(URI uri, Map<String, String> stringStringMap) throws DuplicateBlobException, IOException, MissingBlobException, NullPointerException, IllegalArgumentException {
         if (!this.exists())
             throw new MissingBlobException(this.id);

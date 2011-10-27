@@ -58,7 +58,6 @@ public class CaringoBlobStore extends AbstractBlobStore {
         this.locatorRetryTimeout = locatorRetryTimeout;
     }
 
-    @Override
     public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {
         if (tx != null) {
             throw new UnsupportedOperationException();
