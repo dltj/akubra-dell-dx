@@ -324,4 +324,23 @@ public class CaringoBlobTest {
         Assert.assertFalse(succeeded);
     }
 
+    @Test
+    public void testStoreCustomHeader() throws Exception {
+        InputStream input = null;
+        try {
+            getConnection();
+            CaringoBlob blob = getTestBlob();
+            blob.addHint("fedora:test-header", "test-value");
+            writeBlob(getTestBytes(), blob);
+            CaringoBlob readBlob = getTestBlob();
+            input = readBlob.openInputStream();
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsName("x-fedora-meta-test-header"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header", "test-value"));
+        } finally {
+            if (input != null)
+                input.close();
+            deleteTestBlob();
+        }
+    }
+
 }

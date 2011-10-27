@@ -7,9 +7,11 @@ import org.akubraproject.impl.AbstractBlob;
 import org.akubraproject.impl.StreamManager;
 import org.apache.commons.io.IOUtils;
 
+import javax.print.DocFlavor;
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,11 +24,13 @@ public class CaringoBlob extends AbstractBlob {
 
     protected CaringoBlobStoreConnection owner;
     protected CaringoHints hints;
+    protected CaringoAbstractResponse response;
 
     protected CaringoBlob(CaringoBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id);
         this.owner = owner;
         this.hints = hints;
+        this.response = null;
     }
 
     protected StreamManager getStreamManager() {
@@ -34,7 +38,8 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     public boolean exists() throws IOException {
-        CaringoInfoResponse response = this.info();
+        CaringoInfoResponse info_response = this.info();
+        response = info_response;
         if (response.notFound())
             return false;
         if (response.ok())
@@ -43,14 +48,15 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     public long getSize() throws IOException, MissingBlobException {
-        CaringoInfoResponse response = this.info();
+        CaringoInfoResponse info_response = this.info();
+        response = info_response;
         if (response.notFound()) {
             throw new MissingBlobException(this.id);
         }
         if (!response.ok()) {
             throw new IOException();
         }
-        return response.contentLength();
+        return info_response.contentLength();
     }
 
     private CaringoInfoResponse info() throws IOException {
@@ -72,17 +78,18 @@ public class CaringoBlob extends AbstractBlob {
     any possible visible result until the entire operation is complete.
      */
     public InputStream openInputStream() throws IOException, MissingBlobException {
-        CaringoReadResponse response = this.owner.read(this.id);
-        if (response.notFound()) {
-            response.cleanupFile();
+        CaringoReadResponse read_response = this.owner.read(this.id);
+        response = read_response;
+        if (read_response.notFound()) {
+            read_response.cleanupFile();
             throw new MissingBlobException(this.id);
         }
 
-        if (!response.ok()) {
-            response.cleanupFile();
+        if (!read_response.ok()) {
+            read_response.cleanupFile();
             throw new IOException();
         }
-        CaringoInputStream input = new CaringoInputStream(response.getFile());
+        CaringoInputStream input = new CaringoInputStream(read_response.getFile());
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
     }
 
@@ -98,8 +105,9 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     public void delete() throws IOException {
-        CaringoDeleteResponse response = this.owner.delete(this.id);
-        if (!response.ok() && !response.notFound())
+        CaringoDeleteResponse delete_response = this.owner.delete(this.id);
+        response = delete_response;
+        if (!delete_response.ok() && !delete_response.notFound())
             throw new IOException();
     }
 
@@ -129,9 +137,18 @@ public class CaringoBlob extends AbstractBlob {
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
         }
-        CaringoWriteResponse response = this.owner.write(this.id, content, overwrite);
-        if (!response.created())
+        CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite, this.hints);
+        response = writeResponse;
+        if (!writeResponse.created())
             throw new IOException();
+    }
+
+    public void addHint(String key, String value) {
+        this.hints.put(key, value);
+    }
+
+    public CaringoAbstractResponse response() {
+        return response;
     }
 
 }

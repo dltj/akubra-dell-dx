@@ -1,5 +1,7 @@
 package edu.illinois.medusa;
 
+import com.caringo.client.ScspHeaders;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class CaringoHints extends HashMap<String, String> {
+
 
     //Merge some supplied hints. Note that supplied hints take precedence over
     //hints already in the hash
@@ -28,5 +31,20 @@ public class CaringoHints extends HashMap<String, String> {
 
     public CaringoHints copy_and_merge_hints(Map<String, String> hints) {
         return this.copy().merge_hints(hints);
+    }
+
+    public void augmentScspHeaders(ScspHeaders headers) {
+        for(Map.Entry<String, String> entry : this.entrySet()) {
+            headers.addValue(metadataHeaderName(entry.getKey()), entry.getValue());
+        }
+    }
+
+    //The name value should be of the form "namespace:key"
+    //This gets mapped to x-namespace-meta-key
+    protected String metadataHeaderName(String name) {
+        int splitPosition = name.indexOf(':');
+        String namespace = name.substring(0, splitPosition);
+        String key = name.substring(splitPosition + 1);
+        return "x-" + namespace + "-meta-" + key;
     }
 }

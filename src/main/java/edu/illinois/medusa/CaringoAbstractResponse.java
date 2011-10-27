@@ -34,4 +34,7 @@ public abstract class CaringoAbstractResponse {
         return this.status() == 201;
     }
 
+    public ScspResponse scspResponse() {
+        return this.response;
+    }
 }
