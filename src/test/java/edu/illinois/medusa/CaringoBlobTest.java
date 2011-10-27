@@ -168,6 +168,24 @@ public class CaringoBlobTest {
     }
 
     @Test
+    public void testMoveMetadataWithBlob() throws Exception {
+        getConnection();
+        CaringoBlob source_blob = getTestBlob();
+        source_blob.addHint("fedora:test-key", "test-value");
+        writeBlob(getTestBytes(), source_blob);
+        CaringoBlob new_blob = connection.getBlob(URI.create("moved-blob"), null);
+        try {
+            source_blob.moveTo(new_blob.getId(), null);
+            //force an info call
+            new_blob.getSize();
+            Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-key", "test-value"));
+        }  finally {
+            deleteBlob(new_blob);
+            deleteBlob(source_blob);
+        }
+    }
+
+    @Test
     public void testMoveMissingBlob() throws Exception {
         getConnection();
         Blob blob = connection.getBlob(URI.create("never-created-blob"), null);

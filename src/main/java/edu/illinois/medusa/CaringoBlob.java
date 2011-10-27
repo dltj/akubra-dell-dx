@@ -1,5 +1,6 @@
 package edu.illinois.medusa;
 
+import com.caringo.client.ScspHeaders;
 import org.akubraproject.Blob;
 import org.akubraproject.DuplicateBlobException;
 import org.akubraproject.MissingBlobException;
@@ -10,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 import javax.print.DocFlavor;
 import java.io.*;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -116,13 +119,14 @@ public class CaringoBlob extends AbstractBlob {
             throw new MissingBlobException(this.id);
         if (uri == null)
             throw new UnsupportedOperationException();
-        Blob newBlob = this.owner.getBlob(uri, null);
+        CaringoBlob newBlob = this.owner.getBlob(uri, null);
         if (newBlob.exists())
             throw new DuplicateBlobException(uri);
 
         //store content in new blob
-        OutputStream output = newBlob.openOutputStream(1024, false);
         InputStream input = this.openInputStream();
+        this.copyHeaders(newBlob);
+        OutputStream output = newBlob.openOutputStream(1024, false);
         IOUtils.copyLarge(input, output);
         output.close();
         input.close();
@@ -131,6 +135,33 @@ public class CaringoBlob extends AbstractBlob {
         this.delete();
 
         return newBlob;
+    }
+
+    //copy selected headers from this to otherBlob
+    //Note that we must have done an info or opened an Input stream on this so as to have access to
+    //a response with headers
+    protected void copyHeaders(CaringoBlob otherBlob) {
+        if (this.response != null) {
+            ScspHeaders headers = this.response().scspResponse().getResponseHeaders();
+            HashMap<String, ArrayList<String>> header_map = headers.getHeaderMap();
+            for(String key : header_map.keySet()) {
+                if (copyableHeader(key)) {
+                    for(String value : header_map.get(key)) {
+                        otherBlob.addHint(":" + key, value);
+                    }
+                }
+            }
+        }
+    }
+
+    //return whether a header with the given name should be copied when doing moveTo
+    //We copy x-*-meta-* headers and Lifepoint headers. Of course one can subclass to change this.
+    protected boolean copyableHeader(String header_name) {
+        if (header_name.matches("^x-.+-meta-.+$"))
+            return true;
+        if (header_name.matches("^Lifepoint$"))
+            return true;
+        return false;
     }
 
     protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
