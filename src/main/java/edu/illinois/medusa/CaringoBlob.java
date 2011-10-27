@@ -106,11 +106,6 @@ public class CaringoBlob extends AbstractBlob {
             throw new IOException();
     }
 
-    //TODO
-    //The SDK has a tantalizingly named copyMutable method and the examples seem to indicate that it can
-    //be applied to objects in buckets, but I'm not sure it does what we want. In fact, it's not completely
-    //clear to me what it does at all. But it might be worth figuring out just in case I'm missing something
-    //here, as making this round trip to copy isn't exactly ideal.
     @Override
     public Blob moveTo(URI uri, Map<String, String> stringStringMap) throws DuplicateBlobException, IOException, MissingBlobException, NullPointerException, IllegalArgumentException {
         if (!this.exists())
