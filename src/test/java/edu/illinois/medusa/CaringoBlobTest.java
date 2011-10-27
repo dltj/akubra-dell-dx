@@ -265,8 +265,8 @@ public class CaringoBlobTest {
         Blob target = connection.getBlob(URI.create("large-target"), null);
         final int bufferSize = 1024;
         //final int fileSize = 100 * 1024 * 1024;
-        final long fileSize = 1024L * 1024 * 1024;
-        //final long fileSize = 1 * 1024 * 1024;
+        //final long fileSize = 1024L * 1024 * 1024;
+        final long fileSize = 1 * 1024 * 1024;
         try {
             //Write a lot of information to source - 100MB
             byte[] bytes = new byte[bufferSize];

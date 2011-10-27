@@ -21,10 +21,12 @@ import java.util.Map;
 public class CaringoBlob extends AbstractBlob {
 
     protected CaringoBlobStoreConnection owner;
+    protected CaringoHints hints;
 
-    protected CaringoBlob(CaringoBlobStoreConnection owner, URI id) {
+    protected CaringoBlob(CaringoBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id);
         this.owner = owner;
+        this.hints = hints;
     }
 
     protected StreamManager getStreamManager() {
