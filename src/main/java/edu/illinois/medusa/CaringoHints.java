@@ -18,7 +18,7 @@ public class CaringoHints extends HashMap<String, String> {
     //Merge some supplied hints. Note that supplied hints take precedence over
     //hints already in the hash
     public CaringoHints merge_hints(Map<String, String> hints) {
-        if(hints != null)
+        if (hints != null)
             this.putAll(hints);
         return this;
     }
@@ -34,17 +34,22 @@ public class CaringoHints extends HashMap<String, String> {
     }
 
     public void augmentScspHeaders(ScspHeaders headers) {
-        for(Map.Entry<String, String> entry : this.entrySet()) {
+        for (Map.Entry<String, String> entry : this.entrySet()) {
             headers.addValue(metadataHeaderName(entry.getKey()), entry.getValue());
         }
     }
 
-    //The name value should be of the form "namespace:key"
-    //This gets mapped to x-namespace-meta-key
+    //The name value should be either of the form:
+    // "namespace:key" - This gets mapped to x-namespace-meta-key
+    // ":key" - This gets mapped directly to key
     protected String metadataHeaderName(String name) {
         int splitPosition = name.indexOf(':');
-        String namespace = name.substring(0, splitPosition);
-        String key = name.substring(splitPosition + 1);
-        return "x-" + namespace + "-meta-" + key;
+        if (splitPosition > 0) {
+            String namespace = name.substring(0, splitPosition);
+            String key = name.substring(splitPosition + 1);
+            return "x-" + namespace + "-meta-" + key;
+        } else {
+            return name.substring(1);
+        }
     }
 }

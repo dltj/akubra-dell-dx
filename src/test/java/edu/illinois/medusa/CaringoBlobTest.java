@@ -331,11 +331,13 @@ public class CaringoBlobTest {
             getConnection();
             CaringoBlob blob = getTestBlob();
             blob.addHint("fedora:test-header", "test-value");
+            blob.addHint(":x-fedora-meta-test-header-2", "test-value-2");
             writeBlob(getTestBytes(), blob);
             CaringoBlob readBlob = getTestBlob();
             input = readBlob.openInputStream();
             Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsName("x-fedora-meta-test-header"));
             Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header", "test-value"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header-2", "test-value-2"));
         } finally {
             if (input != null)
                 input.close();
