@@ -2,6 +2,9 @@ package edu.illinois.medusa;
 
 import com.caringo.client.ScspHeaders;
 
+import javax.print.DocFlavor;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +38,31 @@ public class CaringoHints extends HashMap<String, String> {
 
     public void augmentScspHeaders(ScspHeaders headers) {
         for (Map.Entry<String, String> entry : this.entrySet()) {
-            headers.addValue(metadataHeaderName(entry.getKey()), entry.getValue());
+            String headerName = metadataHeaderName(entry.getKey());
+            for (String value : this.getValues(entry.getKey())) {
+                headers.addValue(headerName, value);
+            }
+        }
+    }
+
+    public void addHint(String key, String value) {
+        String quotedValue = URLEncoder.encode(value);
+        if (this.containsKey(key)) {
+            this.put(key, this.get(key) + ":" + quotedValue);
+        } else {
+            this.put(key, quotedValue);
+        }
+    }
+
+    public String[] getValues(String key) {
+        if (this.containsKey(key)) {
+            String[] values = this.get(key).split(":");
+            for (int i = 0; i < values.length; i++) {
+                values[i] = URLDecoder.decode(values[i]);
+            }
+            return values;
+        } else {
+            return (new String[0]);
         }
     }
 

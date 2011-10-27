@@ -144,7 +144,7 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     public void addHint(String key, String value) {
-        this.hints.put(key, value);
+        this.hints.addHint(key, value);
     }
 
     public CaringoAbstractResponse response() {
