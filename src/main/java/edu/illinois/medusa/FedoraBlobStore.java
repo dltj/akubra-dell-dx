@@ -12,7 +12,7 @@ import javax.transaction.Transaction;
  * Time: 10:44 AM
  * To change this template use File | Settings | File Templates.
  */
-public class FedoraBlobStore extends CaringoBlobStore {
+public class FedoraBlobStore extends HintedBlobStore {
 
     protected FedoraBlobStore(URI storeId, String hostUrl, String domainName, String bucketName, String repositoryName) {
         this(storeId, hostUrl, domainName, bucketName, repositoryName, 80, 4, 4, 120, 300, 300);

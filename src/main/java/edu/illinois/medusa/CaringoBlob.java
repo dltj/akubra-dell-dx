@@ -26,13 +26,11 @@ import java.util.StringTokenizer;
 public class CaringoBlob extends AbstractBlob {
 
     protected CaringoBlobStoreConnection owner;
-    protected CaringoHints hints;
     protected CaringoAbstractResponse response;
 
-    protected CaringoBlob(CaringoBlobStoreConnection owner, URI id, CaringoHints hints) {
+    protected CaringoBlob(CaringoBlobStoreConnection owner, URI id) {
         super(owner, id);
         this.owner = owner;
-        this.hints = hints;
         this.response = null;
     }
 
@@ -125,7 +123,6 @@ public class CaringoBlob extends AbstractBlob {
 
         //store content in new blob
         InputStream input = this.openInputStream();
-        this.copyHeaders(newBlob);
         OutputStream output = newBlob.openOutputStream(1024, false);
         IOUtils.copyLarge(input, output);
         output.close();
@@ -137,45 +134,14 @@ public class CaringoBlob extends AbstractBlob {
         return newBlob;
     }
 
-    //copy selected headers from this to otherBlob
-    //Note that we must have done an info or opened an Input stream on this so as to have access to
-    //a response with headers
-    protected void copyHeaders(CaringoBlob otherBlob) {
-        if (this.response != null) {
-            ScspHeaders headers = this.response().scspResponse().getResponseHeaders();
-            HashMap<String, ArrayList<String>> header_map = headers.getHeaderMap();
-            for(String key : header_map.keySet()) {
-                if (copyableHeader(key)) {
-                    for(String value : header_map.get(key)) {
-                        otherBlob.addHint(":" + key, value);
-                    }
-                }
-            }
-        }
-    }
-
-    //return whether a header with the given name should be copied when doing moveTo
-    //We copy x-*-meta-* headers and Lifepoint headers. Of course one can subclass to change this.
-    protected boolean copyableHeader(String header_name) {
-        if (header_name.matches("^x-.+-meta-.+$"))
-            return true;
-        if (header_name.matches("^Lifepoint$"))
-            return true;
-        return false;
-    }
-
     protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
         }
-        CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite, this.hints);
+        CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite);
         response = writeResponse;
         if (!writeResponse.created())
             throw new IOException();
-    }
-
-    public void addHint(String key, String value) {
-        this.hints.addHint(key, value);
     }
 
     public CaringoAbstractResponse response() {

@@ -31,20 +31,18 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
     protected CaringoBlobStore owner;
     protected ScspClient caringoClient;
-    protected CaringoHints hints;
 
-    protected CaringoBlobStoreConnection(CaringoBlobStore owner, StreamManager streamManager, CaringoHints hints) throws IOException {
+    protected CaringoBlobStoreConnection(CaringoBlobStore owner, StreamManager streamManager) throws IOException {
         super(owner, streamManager);
         this.owner = owner;
         this.caringoClient = owner.getCaringoClient();
         this.caringoClient.start();
-        this.hints = hints;
     }
 
     public CaringoBlob getBlob(URI blobId, Map<String, String> hints) {
         //use URI to lookup blob from Caringo server
         //for now no use of hints
-        return new CaringoBlob(this, blobId, this.hints.copy_and_merge_hints(hints));
+        return new CaringoBlob(this, blobId);
     }
 
     //TODO This may be possible. I think that there needs to be DX Content Router instance that has set up a channel
@@ -103,14 +101,13 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         }
     }
 
-    public CaringoWriteResponse write(URI id, CaringoOutputStream outputStream, boolean overwrite, CaringoHints hints) throws IOException {
+    public CaringoWriteResponse write(URI id, CaringoOutputStream outputStream, boolean overwrite) throws IOException {
         InputStream input = null;
         try {
             ensureOpen();
             Long size = outputStream.size();
             input = outputStream.contentStream();
             ScspHeaders headers = new ScspHeaders();
-            hints.augmentScspHeaders(headers);
             ScspResponse response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
             return new CaringoWriteResponse(response);
         } catch (ScspExecutionException e) {
@@ -165,7 +162,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         super.close();
     }
 
-    private ScspClient getCaringoClient() {
+    protected ScspClient getCaringoClient() {
         return this.caringoClient;
     }
 }

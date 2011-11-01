@@ -13,9 +13,9 @@ import java.util.Map;
  * Time: 10:44 AM
  * To change this template use File | Settings | File Templates.
  */
-public class FedoraBlobStoreConnection extends CaringoBlobStoreConnection {
+public class FedoraBlobStoreConnection extends HintedBlobStoreConnection {
 
-    protected FedoraBlobStoreConnection(CaringoBlobStore owner, StreamManager streamManager, CaringoHints hints) throws IOException {
+    protected FedoraBlobStoreConnection(FedoraBlobStore owner, StreamManager streamManager, CaringoHints hints) throws IOException {
         super(owner, streamManager, hints);
     }
 

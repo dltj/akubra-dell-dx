@@ -29,7 +29,6 @@ public class CaringoBlobStore extends AbstractBlobStore {
     protected int connectionTimeout;
     protected int poolTimeout;
     protected int locatorRetryTimeout;
-    protected CaringoHints hints;
 
     protected StreamManager streamManager;
 
@@ -59,14 +58,13 @@ public class CaringoBlobStore extends AbstractBlobStore {
         this.connectionTimeout = connectionTimeout;
         this.poolTimeout = poolTimeout;
         this.locatorRetryTimeout = locatorRetryTimeout;
-        this.hints = new CaringoHints();
     }
 
     public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {
         if (tx != null) {
             throw new UnsupportedOperationException();
         }
-        return new CaringoBlobStoreConnection(this, streamManager, this.hints.copy_and_merge_hints(hints));
+        return new CaringoBlobStoreConnection(this, streamManager);
     }
 
     public CaringoBlobStoreConnection openConnection() throws IOException {

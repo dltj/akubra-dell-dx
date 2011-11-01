@@ -18,7 +18,6 @@ import java.net.URI;
  * User: hading
  * Date: 7/19/11
  * Time: 11:00 AM
- * To change this template use File | Settings | File Templates.
  */
 public class CaringoBlobTest extends AbstractBlobTest {
 
@@ -133,24 +132,6 @@ public class CaringoBlobTest extends AbstractBlobTest {
         } finally {
             deleteBlob(new_blob);
             deleteTestBlob();
-        }
-    }
-
-    @Test
-    public void testMoveMetadataWithBlob() throws Exception {
-        openConnection();
-        CaringoBlob source_blob = getTestBlob();
-        source_blob.addHint("fedora:test-key", "test-value");
-        writeBlob(getTestBytes(), source_blob);
-        CaringoBlob new_blob = connection.getBlob(URI.create("moved-blob"), null);
-        try {
-            source_blob.moveTo(new_blob.getId(), null);
-            //force an info call
-            new_blob.getSize();
-            Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-key", "test-value"));
-        }  finally {
-            deleteBlob(new_blob);
-            deleteBlob(source_blob);
         }
     }
 
@@ -310,28 +291,4 @@ public class CaringoBlobTest extends AbstractBlobTest {
         }
         Assert.assertFalse(succeeded);
     }
-
-    @Test
-    public void testStoreCustomHeader() throws Exception {
-        InputStream input = null;
-        try {
-            openConnection();
-            CaringoBlob blob = getTestBlob();
-            blob.addHint("fedora:test-header", "test-value");
-            blob.addHint("fedora:test-header", "another-test-value");
-            blob.addHint(":x-fedora-meta-test-header-2", "test-value-2");
-            writeBlob(getTestBytes(), blob);
-            CaringoBlob readBlob = getTestBlob();
-            input = readBlob.openInputStream();
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsName("x-fedora-meta-test-header"));
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header", "test-value"));
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header", "another-test-value"));
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-header-2", "test-value-2"));
-        } finally {
-            if (input != null)
-                input.close();
-            deleteTestBlob();
-        }
-    }
-
 }

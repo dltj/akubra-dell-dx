@@ -8,9 +8,9 @@ import java.net.URI;
  * Date: 11/1/11
  * Time: 10:45 AM
  */
-public class FedoraBlob extends CaringoBlob {
+public class FedoraBlob extends HintedBlob {
 
-    protected FedoraBlob(CaringoBlobStoreConnection owner, URI id, CaringoHints hints) {
+    protected FedoraBlob(FedoraBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id, hints);
         this.addHint("fedora:stream-id", id.toString());
     }
