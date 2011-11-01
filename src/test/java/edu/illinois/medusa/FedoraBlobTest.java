@@ -12,7 +12,6 @@ import java.net.URI;
  * User: hading
  * Date: 11/1/11
  * Time: 11:17 AM
- * To change this template use File | Settings | File Templates.
  */
 public class FedoraBlobTest extends AbstractBlobTest {
 
@@ -41,7 +40,6 @@ public class FedoraBlobTest extends AbstractBlobTest {
         FedoraBlob new_blob = getTestBlob();
         new_blob.getSize();
         Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-repository-name", "test-repository"));
-        Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-stream", "true"));
         Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-stream-id", "fedora-test-blob-id"));
         blob.delete();
     }
