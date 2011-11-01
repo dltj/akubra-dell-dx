@@ -29,7 +29,6 @@ public class CaringoIdMapper implements IdMapper {
             return externalId;
     }
 
-    @Override
     public String getInternalPrefix(String externalPrefix) throws NullPointerException {
         if (externalPrefix == null)
             throw new NullPointerException();
