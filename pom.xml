@@ -8,6 +8,9 @@
     <artifactId>akubra-caringo</artifactId>
     <version>1.0</version>
 
+    <!--
+     To build the jar with dependencies: mvn assembly:single
+    -->
     <build>
         <plugins>
             <plugin>
@@ -18,6 +21,23 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -26,6 +46,11 @@
         <dependency>
             <groupId>org.akubraproject</groupId>
             <artifactId>akubra-core</artifactId>
+            <version>0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.akubraproject</groupId>
+            <artifactId>akubra-map</artifactId>
             <version>0.3</version>
         </dependency>
         <dependency>
