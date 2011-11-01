@@ -20,7 +20,7 @@ import java.net.URI;
  * Time: 11:00 AM
  * To change this template use File | Settings | File Templates.
  */
-public class CaringoBlobTest {
+public class CaringoBlobTest extends AbstractBlobTest {
 
     private CaringoBlobStore store;
     private CaringoBlobStoreConnection connection;
@@ -30,49 +30,18 @@ public class CaringoBlobTest {
         store = CaringoBlobStoreTest.newStore();
     }
 
-    private void getConnection() throws IOException {
+    private void openConnection() throws IOException {
         connection = store.openConnection();
     }
 
-    private URI testBlobName() {
-        return URI.create("test-blob");
-    }
-
-    private byte[] getTestBytes() {
-        return "Test string".getBytes();
-    }
-
-    private void writeTestBlob(byte[] testBytes) throws Exception {
-        writeBlob(testBytes, getTestBlob());
-    }
-
-    private void writeBlob(byte[] testBytes, Blob blob) throws Exception {
-        if (testBytes == null)
-            testBytes = getTestBytes();
-        OutputStream out = blob.openOutputStream(100, true);
-        out.write(testBytes);
-        out.close();
-    }
-
-    private void deleteTestBlob() {
-        deleteBlob(getTestBlob());
-    }
-
-    private void deleteBlob(Blob blob) {
-        try {
-            blob.delete();
-        } catch (IOException e) {
-        }
-    }
-
-    private CaringoBlob getTestBlob() {
+    protected CaringoBlob getTestBlob() {
         return connection.getBlob(testBlobName(), null);
     }
 
     @Test
     public void testWriteAndExistsAndDelete() throws Exception {
         try {
-            getConnection();
+            openConnection();
             writeTestBlob(getTestBytes());
             CaringoBlob blob = getTestBlob();
             Assert.assertTrue(blob.exists());
@@ -86,7 +55,7 @@ public class CaringoBlobTest {
     @Test
     //This operation should do nothing, but should still succeed and not throw an Exception
     public void testDeleteMissingBlob() throws Exception {
-        getConnection();
+        openConnection();
         boolean succeeded;
         try {
             connection.getBlob(URI.create("never-created-blob"), null).delete();
@@ -99,14 +68,14 @@ public class CaringoBlobTest {
 
     @Test
     public void testNeverExisted() throws Exception {
-        getConnection();
+        openConnection();
         Assert.assertFalse(connection.getBlob(URI.create("never-created-blob"), null).exists());
     }
 
     @Test
     public void testSize() throws Exception {
         try {
-            getConnection();
+            openConnection();
             writeTestBlob(getTestBytes());
             CaringoBlob blob = getTestBlob();
             Assert.assertEquals(getTestBytes().length, blob.getSize());
@@ -117,7 +86,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testSizeMissingBlob() throws Exception {
-        getConnection();
+        openConnection();
         CaringoBlob blob = connection.getBlob(URI.create("never-created-blob"), null);
         boolean succeeded;
         try {
@@ -132,7 +101,7 @@ public class CaringoBlobTest {
     @Test
     public void testBlobInputStreamContents() throws Exception {
         try {
-            getConnection();
+            openConnection();
             byte[] bytes = "My test string".getBytes();
             writeTestBlob(bytes);
             Blob blob = getTestBlob();
@@ -151,7 +120,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testMoveBlob() throws Exception {
-        getConnection();
+        openConnection();
         writeTestBlob(null);
         Blob blob = getTestBlob();
         Blob new_blob = connection.getBlob(URI.create("moved-blob"), null);
@@ -169,7 +138,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testMoveMetadataWithBlob() throws Exception {
-        getConnection();
+        openConnection();
         CaringoBlob source_blob = getTestBlob();
         source_blob.addHint("fedora:test-key", "test-value");
         writeBlob(getTestBytes(), source_blob);
@@ -187,7 +156,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testMoveMissingBlob() throws Exception {
-        getConnection();
+        openConnection();
         Blob blob = connection.getBlob(URI.create("never-created-blob"), null);
         boolean succeeded;
         try {
@@ -202,7 +171,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testMoveBlobMustSpecifyURI() throws Exception {
-        getConnection();
+        openConnection();
         writeTestBlob(null);
         boolean succeeded;
         try {
@@ -217,7 +186,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testMoveBlobOverExistingBlobShouldFail() throws Exception {
-        getConnection();
+        openConnection();
         writeTestBlob(null);
         Blob target = connection.getBlob(URI.create("target-blob"), null);
         writeBlob("Some Stuff".getBytes(), target);
@@ -237,7 +206,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testDisallowOverwrite() throws Exception {
-        getConnection();
+        openConnection();
         writeTestBlob(null);
         OutputStream out = null;
         boolean succeeded;
@@ -256,7 +225,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testLowLevelWriteDisallowsOverwrite() throws Exception {
-        getConnection();
+        openConnection();
         writeTestBlob(null);
         File tmpFile = File.createTempFile("test", ".blob");
         tmpFile.deleteOnExit();
@@ -278,7 +247,7 @@ public class CaringoBlobTest {
     //This can be manually set to various sizes
     @Test
     public void testLargeObject() throws Exception {
-        getConnection();
+        openConnection();
         Blob source = connection.getBlob(URI.create("large-source"), null);
         Blob target = connection.getBlob(URI.create("large-target"), null);
         final int bufferSize = 1024;
@@ -325,7 +294,7 @@ public class CaringoBlobTest {
 
     @Test
     public void testInputStreamForMissingBlob() throws Exception {
-        getConnection();
+        openConnection();
         Blob blob = connection.getBlob(URI.create("never-created-blob"), null);
         Assert.assertFalse(blob.exists());
         boolean succeeded;
@@ -346,7 +315,7 @@ public class CaringoBlobTest {
     public void testStoreCustomHeader() throws Exception {
         InputStream input = null;
         try {
-            getConnection();
+            openConnection();
             CaringoBlob blob = getTestBlob();
             blob.addHint("fedora:test-header", "test-value");
             blob.addHint("fedora:test-header", "another-test-value");
