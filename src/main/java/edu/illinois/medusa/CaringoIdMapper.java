@@ -15,7 +15,6 @@ import java.net.URI;
 /* for now this is a completely trivial implementation */
 public class CaringoIdMapper implements IdMapper {
 
-    @Override
     public URI getExternalId(URI internalId) throws NullPointerException {
         if (internalId == null)
             throw new NullPointerException();
@@ -23,7 +22,6 @@ public class CaringoIdMapper implements IdMapper {
             return internalId;
     }
 
-    @Override
     public URI getInternalId(URI externalId) throws NullPointerException {
         if (externalId == null)
             throw new NullPointerException();
