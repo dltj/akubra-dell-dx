@@ -19,9 +19,9 @@ public class FedoraBlob extends HintedBlob {
     //or that should change for the new object
     @Override
     protected boolean copyableHeader(String header_name) {
-        if (header_name == "x-fedora-meta-stream-id")
+        if (header_name.equals("x-fedora-meta-stream-id"))
             return false;
-        if (header_name == "x-fedora-meta-repository-name")
+        if (header_name.equals("x-fedora-meta-repository-name"))
             return false;
         return super.copyableHeader(header_name);
     }
