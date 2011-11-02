@@ -1,14 +1,6 @@
 package edu.illinois.medusa;
 
-import com.google.common.primitives.Bytes;
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URI;
-import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.

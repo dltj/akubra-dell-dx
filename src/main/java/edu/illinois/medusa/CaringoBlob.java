@@ -27,6 +27,7 @@ public class CaringoBlob extends AbstractBlob {
 
     protected CaringoBlobStoreConnection owner;
     protected CaringoAbstractResponse response;
+    protected static boolean log_operations = true;
 
     protected CaringoBlob(CaringoBlobStoreConnection owner, URI id) {
         super(owner, id);
@@ -40,6 +41,7 @@ public class CaringoBlob extends AbstractBlob {
 
     public boolean exists() throws IOException {
         CaringoInfoResponse info_response = this.info();
+        recordOperation("INFO");
         response = info_response;
         if (response.notFound())
             return false;
@@ -50,6 +52,7 @@ public class CaringoBlob extends AbstractBlob {
 
     public long getSize() throws IOException, MissingBlobException {
         CaringoInfoResponse info_response = this.info();
+        recordOperation("INFO");
         response = info_response;
         if (response.notFound()) {
             throw new MissingBlobException(this.id);
@@ -80,6 +83,7 @@ public class CaringoBlob extends AbstractBlob {
      */
     public InputStream openInputStream() throws IOException, MissingBlobException {
         CaringoReadResponse read_response = this.owner.read(this.id);
+        recordOperation("READ");
         response = read_response;
         if (read_response.notFound()) {
             read_response.cleanupFile();
@@ -94,6 +98,18 @@ public class CaringoBlob extends AbstractBlob {
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
     }
 
+    private void recordOperation(String operation) {
+        if (log_operations) {
+            try {
+                FileWriter fw = new FileWriter("/tmp/fedora-recorder", true);
+                fw.write(operation + ":\t" + this.id.toString() + "\n");
+                fw.close();
+            } catch (Exception e) {
+                //do nothing
+            }
+        }
+    }
+
     public OutputStream openOutputStream(long estimated_length, boolean overwrite) throws IOException, DuplicateBlobException {
         //File tempFile = File.createTempFile(this.getId().toString(), ".blob");
         File tempFile = File.createTempFile("fedora-out", ".blob");
@@ -102,12 +118,14 @@ public class CaringoBlob extends AbstractBlob {
         //is already gone.
         tempFile.deleteOnExit();
         CaringoOutputStream outputStream = new CaringoOutputStream(estimated_length, overwrite, this, tempFile);
+        recordOperation("WRITE");
         return this.getStreamManager().manageOutputStream(this.owner, new BufferedOutputStream(outputStream));
     }
 
     public void delete() throws IOException {
         CaringoDeleteResponse delete_response = this.owner.delete(this.id);
         response = delete_response;
+        recordOperation("DELETE");
         if (!delete_response.ok() && !delete_response.notFound())
             throw new IOException();
     }
