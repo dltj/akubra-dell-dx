@@ -39,7 +39,7 @@ public class HintedBlob extends CaringoBlob {
             ScspHeaders headers = this.response().scspResponse().getResponseHeaders();
             HashMap<String, ArrayList<String>> header_map = headers.getHeaderMap();
             for(String key : header_map.keySet()) {
-                if (copyableHeader(key)) {
+                if (this.copyableHeader(key)) {
                     for(String value : header_map.get(key)) {
                         otherBlob.addHint(":" + key, value);
                     }

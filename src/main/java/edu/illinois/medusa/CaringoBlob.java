@@ -139,6 +139,7 @@ public class CaringoBlob extends AbstractBlob {
         if (newBlob.exists())
             throw new DuplicateBlobException(uri);
 
+        recordOperation("ST-MV:");
         //store content in new blob
         InputStream input = this.openInputStream();
         OutputStream output = newBlob.openOutputStream(1024, false);
@@ -148,7 +149,7 @@ public class CaringoBlob extends AbstractBlob {
 
         //remove old blob
         this.delete();
-
+        recordOperation("END-MV:");
         return newBlob;
     }
 
