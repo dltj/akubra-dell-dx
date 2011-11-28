@@ -67,13 +67,13 @@
         </dependency>
         <!-- the following are caringo's jars. The assumption is that they've been ingested into
         a local maven repository using the com.caringo as the groupId and the natural artifact
-        and version ids. For the CAStorSDK itself an arbtrary version of 1.0 is picked. Some of these
+        and version ids.  Some of these
          _may_ be identical to the standard versions, but some of them are modified, so we've just
          chosen to use all of theirs. -->
         <dependency>
             <groupId>com.caringo</groupId>
             <artifactId>CAStorSDK</artifactId>
-            <version>1.0</version>
+            <version>1.3.2</version>
         </dependency>
         <dependency>
             <groupId>com.caringo</groupId>
