@@ -12,17 +12,9 @@ public class FedoraBlob extends HintedBlob {
 
     protected FedoraBlob(FedoraBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id, hints);
-        this.addHint("fedora:stream-id", id.toString());
+        this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-stream-id$"));
+        this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-repository-name$"));
+        this.hintAdders.add(new HintIdAdder());
     }
 
-    //We don't want to retain some of the headers on copy, specifically some that will already be present
-    //or that should change for the new object
-    @Override
-    protected boolean copyableHeader(String header_name) {
-        if (header_name.equals("x-fedora-meta-stream-id"))
-            return false;
-        if (header_name.equals("x-fedora-meta-repository-name"))
-            return false;
-        return super.copyableHeader(header_name);
-    }
 }

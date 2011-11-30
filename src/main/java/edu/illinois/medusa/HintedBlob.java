@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,38 +25,24 @@ public class HintedBlob extends CaringoBlob {
 
     protected CaringoHints hints;
     protected HintedBlobStoreConnection owner;
+    protected HintCopier hintCopier;
+    protected List<HintAdder> hintAdders;
 
     protected HintedBlob(HintedBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id);
         this.hints = hints;
         this.owner = owner;
+        this.hintCopier = new HintCopier();
+        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-meta", true, "^x-.+-meta-.+$"));
+        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-lifepoint", true, "^Lifepoint$"));
+        this.hintAdders = new ArrayList<HintAdder>();
     }
 
     //copy selected headers from this to otherBlob
     //Note that we must have done an info or opened an Input stream on this so as to have access to
     //a response with headers
     protected void copyHeaders(HintedBlob otherBlob) {
-        if (this.response != null) {
-            ScspHeaders headers = this.response().scspResponse().getResponseHeaders();
-            HashMap<String, ArrayList<String>> header_map = headers.getHeaderMap();
-            for(String key : header_map.keySet()) {
-                if (this.copyableHeader(key)) {
-                    for(String value : header_map.get(key)) {
-                        otherBlob.addHint(":" + key, value);
-                    }
-                }
-            }
-        }
-    }
-
-    //return whether a header with the given name should be copied when doing moveTo
-    //We copy x-*-meta-* headers and Lifepoint headers. Of course one can subclass to change this.
-    protected boolean copyableHeader(String header_name) {
-        if (header_name.matches("^x-.+-meta-.+$"))
-            return true;
-        if (header_name.matches("^Lifepoint$"))
-            return true;
-        return false;
+        this.hintCopier.copyHeaders(this, otherBlob);
     }
 
     public void addHint(String key, String value) {
@@ -65,6 +52,9 @@ public class HintedBlob extends CaringoBlob {
     protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
+        }
+        for (HintAdder hintAdder : this.hintAdders) {
+            hintAdder.addHints(this);
         }
         CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite, this.hints);
         response = writeResponse;
