@@ -27,6 +27,7 @@ public class HintedBlob extends CaringoBlob {
     protected HintedBlobStoreConnection owner;
     protected HintCopier hintCopier;
     protected List<HintAdder> hintAdders;
+    protected CaringoOutputStream content;
 
     protected HintedBlob(HintedBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id);
@@ -45,11 +46,16 @@ public class HintedBlob extends CaringoBlob {
         this.hintCopier.copyHeaders(this, otherBlob);
     }
 
+    public CaringoOutputStream getContent() {
+        return this.content;
+    }
+
     public void addHint(String key, String value) {
         this.hints.addHint(key, value);
     }
 
     protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
+        this.content = content;
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
         }
@@ -60,6 +66,7 @@ public class HintedBlob extends CaringoBlob {
         response = writeResponse;
         if (!writeResponse.created())
             throw new IOException();
+        this.content = null;
     }
 
     public Blob moveTo(URI uri, Map<String, String> stringStringMap) throws DuplicateBlobException, IOException, MissingBlobException, NullPointerException, IllegalArgumentException {

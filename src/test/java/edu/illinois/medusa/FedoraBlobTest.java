@@ -1,11 +1,13 @@
 package edu.illinois.medusa;
 
 import junit.framework.Assert;
+import org.apache.commons.codec.binary.Base64;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.MessageDigest;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,5 +44,20 @@ public class FedoraBlobTest extends AbstractBlobTest {
         Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-repository-name", "test-repository"));
         Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-stream-id", "fedora-test-blob-id"));
         blob.delete();
+    }
+
+    @Test
+    public void testMD5Metadata() throws Exception {
+        openConnection();
+        FedoraBlob blob = getTestBlob();
+        String content = "Some more test bytes";
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(content.getBytes());
+        byte[] md5_bytes = md.digest();
+        String base64 = new String(Base64.encodeBase64(md5_bytes));
+        writeBlob(content.getBytes(), blob);
+        FedoraBlob readBlob = getTestBlob();
+        readBlob.openInputStream();
+        Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("Content-MD5", base64));
     }
 }
