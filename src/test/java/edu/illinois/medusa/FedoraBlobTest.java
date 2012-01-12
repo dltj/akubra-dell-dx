@@ -21,8 +21,9 @@ public class FedoraBlobTest extends AbstractBlobTest {
     private FedoraBlobStoreConnection connection;
 
     @BeforeClass
-    private void getStore() {
-        store = new FedoraBlobStore(URI.create("fedora"), "libstor.grainger.illinois.edu", "libstor.grainger.illinois.edu", "test", "test-repository");
+    private void getStore() throws Exception {
+        store = new FedoraBlobStore(URI.create("fedora"), "test-repository", CaringoBlobStoreTest.caringoConfigConnection(),
+                CaringoBlobStoreTest.caringoConfigAuthentication());
     }
 
     private void openConnection() throws IOException {
@@ -50,7 +51,7 @@ public class FedoraBlobTest extends AbstractBlobTest {
     public void testMD5Metadata() throws Exception {
         openConnection();
         FedoraBlob blob = getTestBlob();
-        String content = "Some more test bytes";
+        String content = "Some test bytes";
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(content.getBytes());
         byte[] md5_bytes = md.digest();

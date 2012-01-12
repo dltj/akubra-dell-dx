@@ -21,8 +21,8 @@ public class HintedBlobTest extends AbstractBlobTest {
     private HintedBlobStoreConnection connection;
 
     @BeforeClass
-    private void getStore() {
-        store = new HintedBlobStore(URI.create("caringo"), "libstor.grainger.illinois.edu", "libstor.grainger.illinois.edu", "test");
+    private void getStore() throws Exception {
+        store = new HintedBlobStore(URI.create("caringo"), CaringoBlobStoreTest.caringoConfigConnection(), CaringoBlobStoreTest.caringoConfigAuthentication());
     }
 
     private void openConnection() throws IOException {

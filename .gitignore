@@ -4,3 +4,4 @@ out/
 target/
 *~
 *.iml
+src/test/java/edu/illinois/medusa/test-config.properties

@@ -14,16 +14,14 @@ import javax.transaction.Transaction;
  */
 public class FedoraBlobStore extends HintedBlobStore {
 
-    protected FedoraBlobStore(URI storeId, String hostUrl, String domainName, String bucketName, String repositoryName) {
-        this(storeId, hostUrl, domainName, bucketName, repositoryName, 80, 4, 4, 120, 300, 300);
+    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
+                              CaringoConfigAuthentication authenticationConfig) {
+        super(storeId, connectionConfig, authenticationConfig);
+        this.hints.addHint("fedora:repository-name", repositoryName);
     }
 
-    protected FedoraBlobStore(URI storeId, String hostUrl, String domainName, String bucketName, String repositoryName,
-                               int port, int maxConnectionPoolSize, int maxRetries,
-                               int connectionTimeout, int poolTimeout, int locatorRetryTimeout) {
-        super(storeId, hostUrl, domainName, bucketName, port, maxConnectionPoolSize, maxRetries, connectionTimeout,
-                poolTimeout, locatorRetryTimeout);
-        this.hints.addHint("fedora:repository-name", repositoryName);
+    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
+        this(storeId, repositoryName, connectionConfig, null);
     }
 
     public FedoraBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {

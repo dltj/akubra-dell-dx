@@ -23,7 +23,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
     protected static FileWriter makeLog() {
         try {
-        return new FileWriter(new File("/tmp/fedora-access.log"));
+            return new FileWriter(new File("/tmp/fedora-access.log"));
         } catch (Exception e) {
             return null;
         }
@@ -61,7 +61,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     public CaringoInfoResponse info(URI id) throws IOException {
         try {
             ensureOpen();
-            ScspResponse response = this.getCaringoClient().info("", objectPath(id), new ScspQueryArgs(), new ScspHeaders());
+            ScspResponse response = this.getCaringoClient().info("", objectPath(id), new ScspQueryArgs(), headersWithAuth());
             return new CaringoInfoResponse(response);
         } catch (ScspExecutionException e) {
             throw new IOException();
@@ -78,7 +78,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
             tmpFile.deleteOnExit();
             output = new FileOutputStream(tmpFile);
             ScspResponse response = this.getCaringoClient().read("", objectPath(id), output,
-                    new ScspQueryArgs(), new ScspHeaders());
+                    new ScspQueryArgs(), headersWithAuth());
             caringoReadResponse = new CaringoReadResponse(response, tmpFile);
         } catch (ScspExecutionException e) {
             throw new IOException();
@@ -93,7 +93,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         try {
             ensureOpen();
             ScspResponse response = this.getCaringoClient().delete("", objectPath(id), new ScspQueryArgs(),
-                    new ScspHeaders());
+                    headersWithAuth());
             return new CaringoDeleteResponse(response);
 
         } catch (ScspExecutionException e) {
@@ -107,8 +107,8 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
             ensureOpen();
             Long size = outputStream.size();
             input = outputStream.contentStream();
-            ScspHeaders headers = new ScspHeaders();
-            ScspResponse response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
+            ScspResponse
+                    response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headersWithAuth());
             return new CaringoWriteResponse(response);
         } catch (ScspExecutionException e) {
             throw new IOException();
@@ -117,6 +117,14 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
                 input.close();
             }
         }
+    }
+
+    protected ScspHeaders headersWithAuth() {
+        ScspHeaders headers = new ScspHeaders();
+        if (this.owner.authenticationConfig != null) {
+            headers.setAuthentication(this.owner.authenticationConfig.scspAuth());
+        }
+        return headers;
     }
 
     public String bucketName() {
@@ -131,10 +139,11 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     protected String objectPath(URI id) {
         String path = "/" + this.bucketName() + "/" + id.toString();
         try {
-        logFile.write(path);
-        logFile.write("\n");
-        logFile.flush();
-        } catch (Exception e) {}
+            logFile.write(path);
+            logFile.write("\n");
+            logFile.flush();
+        } catch (Exception e) {
+        }
         return path;
     }
 

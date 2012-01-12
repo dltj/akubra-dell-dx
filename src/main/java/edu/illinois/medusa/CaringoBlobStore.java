@@ -20,44 +20,28 @@ import javax.transaction.Transaction;
  */
 public class CaringoBlobStore extends AbstractBlobStore {
 
-    protected String bucketName;
-    protected String hostUrl;
-    protected String domainName;
-    protected int port;
-    protected int maxConnectionPoolSize;
-    protected int maxRetries;
-    protected int connectionTimeout;
-    protected int poolTimeout;
-    protected int locatorRetryTimeout;
+    protected CaringoConfigConnection connectionConfig;
+    protected CaringoConfigAuthentication authenticationConfig;
 
     protected StreamManager streamManager;
 
     public String getBucketName() {
-        return bucketName;
+        return connectionConfig.caringoBucket;
     }
 
     public StreamManager getStreamManager() {
         return streamManager;
     }
 
-    protected CaringoBlobStore(URI storeId, String hostUrl, String domainName, String bucketName) {
-        this(storeId, hostUrl, domainName, bucketName, 80, 4, 4, 120, 300, 300);
+    protected CaringoBlobStore(URI storeId, CaringoConfigConnection connectionConfig, CaringoConfigAuthentication authenticationConfig) {
+        super (storeId);
+        this.connectionConfig = connectionConfig;
+        this.authenticationConfig = authenticationConfig;
+        this.streamManager = new StreamManager();
     }
 
-    protected CaringoBlobStore(URI storeId, String hostUrl, String domainName, String bucketName,
-                               int port, int maxConnectionPoolSize, int maxRetries,
-                               int connectionTimeout, int poolTimeout, int locatorRetryTimeout) {
-        super(storeId);
-        this.bucketName = bucketName;
-        this.hostUrl = hostUrl;
-        this.streamManager = new StreamManager();
-        this.domainName = domainName;
-        this.port = port;
-        this.maxConnectionPoolSize = maxConnectionPoolSize;
-        this.maxRetries = maxRetries;
-        this.connectionTimeout = connectionTimeout;
-        this.poolTimeout = poolTimeout;
-        this.locatorRetryTimeout = locatorRetryTimeout;
+    protected CaringoBlobStore(URI storeId, CaringoConfigConnection connectionConfig) {
+        this(storeId, connectionConfig, null);
     }
 
     public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {
@@ -73,11 +57,12 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     public ScspClient getCaringoClient() throws IOException {
         String[] hosts = new String[1];
-        hosts[0] = hostUrl;
-        ScspClient client = new ScspClient(hosts, port, maxConnectionPoolSize, maxRetries,
-                connectionTimeout, poolTimeout, locatorRetryTimeout);
-        if (domainName != null)
-            client.setHostHeaderValue(domainName);
+        hosts[0] = connectionConfig.serverURL;
+        ScspClient client = new ScspClient(hosts, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
+                connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout,
+                connectionConfig.locatorRetryTimeout);
+        if (connectionConfig.caringoDomain != null)
+            client.setHostHeaderValue(connectionConfig.caringoDomain);
         return client;
     }
 

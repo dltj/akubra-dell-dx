@@ -25,7 +25,7 @@ public class CaringoBlobTest extends AbstractBlobTest {
     private CaringoBlobStoreConnection connection;
 
     @BeforeClass
-    private void getStore() {
+    private void getStore() throws Exception {
         store = CaringoBlobStoreTest.newStore();
     }
 

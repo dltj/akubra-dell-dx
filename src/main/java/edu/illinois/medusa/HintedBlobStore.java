@@ -17,16 +17,13 @@ public class HintedBlobStore extends CaringoBlobStore {
 
     protected CaringoHints hints;
 
-    protected HintedBlobStore(URI storeId, String hostUrl, String domainName, String bucketName,
-                               int port, int maxConnectionPoolSize, int maxRetries,
-                               int connectionTimeout, int poolTimeout, int locatorRetryTimeout) {
-        super(storeId, hostUrl, domainName, bucketName, port, maxConnectionPoolSize, maxRetries, connectionTimeout,
-                poolTimeout, locatorRetryTimeout);
+    protected HintedBlobStore(URI storeId, CaringoConfigConnection connectionConfig, CaringoConfigAuthentication authenticationConfig) {
+        super(storeId, connectionConfig, authenticationConfig);
         this.hints = new CaringoHints();
     }
 
-    protected HintedBlobStore(URI storeId, String hostUrl, String domainName, String bucketName) {
-       this(storeId, hostUrl, domainName, bucketName, 80, 4, 4, 120, 300, 300);
+    protected HintedBlobStore(URI storeId, CaringoConfigConnection connectionConfig) {
+        this(storeId, connectionConfig, null);
     }
 
     public HintedBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {

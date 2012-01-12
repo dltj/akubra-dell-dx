@@ -11,7 +11,8 @@ import java.net.URI;
  */
 public class CaringoMain {
     public static void main (String[] args) throws Exception {
-        CaringoBlobStore store = new CaringoBlobStore(URI.create("caringo"), "cas.caringo.com", "uiuc", "cas.caringo.com");
+        CaringoConfigConnection connectionConfig = new CaringoConfigConnection("cas.caringo.com", "uiuc", "cas.caringo.com");
+        CaringoBlobStore store = new CaringoBlobStore(URI.create("caringo"), connectionConfig);
         CaringoBlobStoreConnection connection = store.openConnection();
         CaringoBlob blob = connection.getBlob(URI.create("test"), null);
 

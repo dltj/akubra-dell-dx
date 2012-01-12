@@ -1,0 +1,9 @@
+#auth configuration
+auth.user = test-user
+auth.password = yourpassword
+auth.realm = medusa.grainger.illinois.edu/test
+
+#connection configuration
+conn.url = libstor.grainger.illinois.edu
+conn.caringo_domain = medusa.grainger.illinois.edu
+conn.caringo_bucket = test
