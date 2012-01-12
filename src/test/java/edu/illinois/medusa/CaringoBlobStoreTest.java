@@ -37,8 +37,6 @@ public class CaringoBlobStoreTest {
     }
 
     public static CaringoBlobStore newStore() throws Exception {
-        //TODO It'd be ideal to make this configurable so the core code wouldn't have to change just to run the tests.
-        //perhaps a properties.example file in VC to be moved to properties and then read it to do the tests
         return new CaringoBlobStore(URI.create("caringo"), caringoConfigConnection(), caringoConfigAuthentication());
     }
 
