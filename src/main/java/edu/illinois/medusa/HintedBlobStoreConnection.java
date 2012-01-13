@@ -36,7 +36,7 @@ public class HintedBlobStoreConnection extends CaringoBlobStoreConnection {
             ensureOpen();
             Long size = outputStream.size();
             input = outputStream.contentStream();
-            ScspHeaders headers = headersWithAuth();
+            ScspHeaders headers = writeHeadersWithAuth();
             hints.augmentScspHeaders(headers);
             ScspResponse response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
             return new CaringoWriteResponse(response);

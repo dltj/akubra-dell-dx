@@ -74,7 +74,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         try {
             ensureOpen();
             //File tmpFile = File.createTempFile("fedora-input-" + id.toString(), ".blob");
-            File tmpFile = File.createTempFile("fedora-input" , ".blob");
+            File tmpFile = File.createTempFile("fedora-input", ".blob");
             tmpFile.deleteOnExit();
             output = new FileOutputStream(tmpFile);
             ScspResponse response = this.getCaringoClient().read("", objectPath(id), output,
@@ -107,8 +107,9 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
             ensureOpen();
             Long size = outputStream.size();
             input = outputStream.contentStream();
+            ScspHeaders headers = writeHeadersWithAuth();
             ScspResponse
-                    response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headersWithAuth());
+                    response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
             return new CaringoWriteResponse(response);
         } catch (ScspExecutionException e) {
             throw new IOException();
@@ -124,6 +125,18 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         if (this.owner.authenticationConfig != null) {
             headers.setAuthentication(this.owner.authenticationConfig.scspAuth());
         }
+        return headers;
+    }
+
+    protected ScspHeaders writeHeadersWithAuth() {
+        ScspHeaders headers = headersWithAuth();
+        if (this.owner.authenticationConfig != null) {
+            ScspAuthorization authorization = new ScspAuthorization();
+            authorization.addAuthorization(ScspAuthorization.ALL_OP, this.owner.authenticationConfig.realm);
+            headers.addValue("Castor-Authorization", authorization.getAuthSpec());
+            headers.addValue("Castor-Stream-Type", "admin");
+        }
+
         return headers;
     }
 
