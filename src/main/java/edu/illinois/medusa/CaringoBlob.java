@@ -111,8 +111,8 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     public OutputStream openOutputStream(long estimated_length, boolean overwrite) throws IOException, DuplicateBlobException {
-        //File tempFile = File.createTempFile(this.getId().toString(), ".blob");
-        File tempFile = File.createTempFile("fedora-out", ".blob");
+        //File tempFile = File.createTempFile("fedora-out_" + this.getId().toString(), ".blob");
+        File tempFile = File.createTempFile("fedora-out" , ".blob");
         //Just to make sure that the file is cleaned up - however, we do it manually when the stream opened on it
         //is closed. Hopefully this doesn't create problems, i.e. deleteFileOnExit is still okay if the file
         //is already gone.

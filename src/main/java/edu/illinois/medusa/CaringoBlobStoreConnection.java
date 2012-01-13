@@ -73,8 +73,8 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         CaringoReadResponse caringoReadResponse;
         try {
             ensureOpen();
-            //File tmpFile = File.createTempFile(id.toString(), ".blob");
-            File tmpFile = File.createTempFile("fedora-input", ".blob");
+            //File tmpFile = File.createTempFile("fedora-input-" + id.toString(), ".blob");
+            File tmpFile = File.createTempFile("fedora-input" , ".blob");
             tmpFile.deleteOnExit();
             output = new FileOutputStream(tmpFile);
             ScspResponse response = this.getCaringoClient().read("", objectPath(id), output,

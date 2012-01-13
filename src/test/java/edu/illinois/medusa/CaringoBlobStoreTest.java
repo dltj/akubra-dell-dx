@@ -30,9 +30,14 @@ public class CaringoBlobStoreTest {
     public static void ensureProperties() throws Exception {
         if (properties == null) {
             properties = new Properties();
-            FileInputStream propertyStream = new FileInputStream("src/test/java/edu/illinois/medusa/test-config.properties");
-            properties.load(propertyStream);
-            propertyStream.close();
+            FileInputStream propertyStream = null;
+            try {
+                propertyStream = new FileInputStream("src/test/java/edu/illinois/medusa/test-config.properties");
+                properties.load(propertyStream);
+            } finally {
+                if (propertyStream != null)
+                    propertyStream.close();
+            }
         }
     }
 
