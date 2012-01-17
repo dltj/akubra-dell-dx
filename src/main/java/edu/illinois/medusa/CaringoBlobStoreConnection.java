@@ -17,14 +17,6 @@ import java.util.Map;
 
 public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
-    protected static FileWriter makeLog() {
-        try {
-            return new FileWriter(new File("/tmp/fedora-access.log"));
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     protected CaringoBlobStore owner;
     protected ScspClient caringoClient;
 
