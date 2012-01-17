@@ -1,11 +1,9 @@
 package edu.illinois.medusa;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 7/14/11
- * Time: 12:58 PM
- * To change this template use File | Settings | File Templates.
+ * Implement Akubra AbstractBlobStoreConnection for Caringo storage
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 
 import com.caringo.client.*;
@@ -18,8 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
-
-    protected static final FileWriter logFile = makeLog();
 
     protected static FileWriter makeLog() {
         try {
@@ -73,7 +69,6 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         CaringoReadResponse caringoReadResponse;
         try {
             ensureOpen();
-            //File tmpFile = File.createTempFile("fedora-input-" + id.toString(), ".blob");
             File tmpFile = File.createTempFile("fedora-input", ".blob");
             tmpFile.deleteOnExit();
             output = new FileOutputStream(tmpFile);
@@ -102,7 +97,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     }
 
     public CaringoWriteResponse write(URI id, CaringoOutputStream outputStream, boolean overwrite, CaringoHints hints) throws IOException {
-      InputStream input = null;
+        InputStream input = null;
         try {
             ensureOpen();
             Long size = outputStream.size();
@@ -160,14 +155,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
     //Return caringo path incorporating bucket
     protected String objectPath(URI id) {
-        String path = "/" + this.bucketName() + "/" + id.toString();
-        try {
-            logFile.write(path);
-            logFile.write("\n");
-            logFile.flush();
-        } catch (Exception e) {
-        }
-        return path;
+        return "/" + this.bucketName() + "/" + id.toString();
     }
 
     protected void ensureOpen() {
