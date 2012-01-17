@@ -1,0 +1,8 @@
+akubra-llstore.xml - this is an example for the Fedora digital repository
+system. You'd use a config file like this in $FEDORA_HOME/server/config.
+The main difference from the file system config file is that the two stores 
+(one each for fedora objects and datastreams) are replaced with akubra-caringo
+classes as appropriate as are the mappers for each. Also there are some added
+beans for configuration of connection information and authentication
+information (if desired - if not null can be used instead of a 
+CarinfoConfigAuthentication)
