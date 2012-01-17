@@ -108,9 +108,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
             Long size = outputStream.size();
             input = outputStream.contentStream();
             ScspHeaders headers = writeHeadersWithAuth();
-            if (hints != null) {
-                hints.augmentScspHeaders(headers);
-            }
+            augmentScspHeaders(headers, hints);
             ScspResponse response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
             return new CaringoWriteResponse(response);
         } catch (ScspExecutionException e) {
@@ -124,6 +122,12 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
 
     public CaringoWriteResponse write(URI id, CaringoOutputStream outputStream, boolean overwrite) throws IOException {
         return write(id, outputStream, overwrite, null);
+    }
+
+    protected void augmentScspHeaders(ScspHeaders headers, CaringoHints hints) {
+        if (hints != null) {
+            hints.augmentScspHeaders(headers);
+        }
     }
 
     protected ScspHeaders headersWithAuth() {
