@@ -30,23 +30,4 @@ public class HintedBlobStoreConnection extends CaringoBlobStoreConnection {
         return new HintedBlob(this, blobId, this.hints.copy_and_merge_hints(hints));
     }
 
-    public CaringoWriteResponse write(URI id, CaringoOutputStream outputStream, boolean overwrite, CaringoHints hints) throws IOException {
-        InputStream input = null;
-        try {
-            ensureOpen();
-            Long size = outputStream.size();
-            input = outputStream.contentStream();
-            ScspHeaders headers = writeHeadersWithAuth();
-            hints.augmentScspHeaders(headers);
-            ScspResponse response = this.getCaringoClient().write(objectPath(id), input, size, new ScspQueryArgs(), headers);
-            return new CaringoWriteResponse(response);
-        } catch (ScspExecutionException e) {
-            throw new IOException();
-        } finally {
-            if (input != null) {
-                input.close();
-            }
-        }
-    }
-
 }
