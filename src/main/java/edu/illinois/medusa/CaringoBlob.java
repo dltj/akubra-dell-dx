@@ -139,29 +139,53 @@ public class CaringoBlob extends AbstractBlob {
         if (newBlob.exists())
             throw new DuplicateBlobException(uri);
 
-        recordOperation("ST-MV:");
         //store content in new blob
         InputStream input = this.openInputStream();
         OutputStream output = newBlob.openOutputStream(1024, false);
+        preprocessMoveTo(newBlob);
         IOUtils.copyLarge(input, output);
         output.close();
         input.close();
 
         //remove old blob
         this.delete();
-        recordOperation("END-MV:");
         return newBlob;
+    }
+
+    //overwrite in subclass to do something in a moveTo action between opening the stream on the existing blob and
+    //opening the output stream on the new one.
+    protected void preprocessMoveTo(CaringoBlob newBlob) {
+
     }
 
     protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
         }
-        CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite);
+        preprocessWrite(content);
+        CaringoWriteResponse writeResponse = sendWrite(content, overwrite);
         response = writeResponse;
         if (!writeResponse.created())
             throw new IOException();
+        postprocessWrite();
     }
+
+    //override to change how the write is sent to the BlobStoreConnection
+    protected CaringoWriteResponse sendWrite(CaringoOutputStream content, boolean overwrite) throws IOException {
+        return this.owner.write(this.id, content, overwrite);
+    }
+
+    //override in subclass to do something before sending a write to the storage server
+    protected void preprocessWrite(CaringoOutputStream content) {
+
+    }
+
+    //override in subclass to do something after completing a write to the storage server
+    protected void postprocessWrite() {
+
+    }
+
+
 
     public CaringoAbstractResponse response() {
         return response;

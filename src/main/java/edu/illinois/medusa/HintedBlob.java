@@ -54,42 +54,23 @@ public class HintedBlob extends CaringoBlob {
         this.hints.addHint(key, value);
     }
 
-    protected void write(CaringoOutputStream content, boolean overwrite) throws IOException, DuplicateBlobException {
+    protected CaringoWriteResponse sendWrite(CaringoOutputStream content, boolean overwrite) throws IOException {
+        return this.owner.write(this.id, content, overwrite, this.hints);
+    }
+
+    protected void preprocessWrite(CaringoOutputStream content) {
         this.content = content;
-        if (!overwrite && this.exists()) {
-            throw new DuplicateBlobException(this.id);
-        }
         for (HintAdder hintAdder : this.hintAdders) {
             hintAdder.addHints(this);
         }
-        CaringoWriteResponse writeResponse = this.owner.write(this.id, content, overwrite, this.hints);
-        response = writeResponse;
-        if (!writeResponse.created())
-            throw new IOException();
+    }
+
+    protected void postprocessWrite() {
         this.content = null;
     }
 
-    public Blob moveTo(URI uri, Map<String, String> stringStringMap) throws DuplicateBlobException, IOException, MissingBlobException, NullPointerException, IllegalArgumentException {
-        if (!this.exists())
-            throw new MissingBlobException(this.id);
-        if (uri == null)
-            throw new UnsupportedOperationException();
-        HintedBlob newBlob = this.owner.getBlob(uri, null);
-        if (newBlob.exists())
-            throw new DuplicateBlobException(uri);
-
-        //store content in new blob
-        InputStream input = this.openInputStream();
-        this.copyHeaders(newBlob);
-        OutputStream output = newBlob.openOutputStream(1024, false);
-        IOUtils.copyLarge(input, output);
-        output.close();
-        input.close();
-
-        //remove old blob
-        this.delete();
-
-        return newBlob;
+    protected void preprocessMoveTo(CaringoBlob newBlob) {
+        this.copyHeaders((HintedBlob) newBlob);
     }
 
 }
