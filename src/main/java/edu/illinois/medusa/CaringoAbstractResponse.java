@@ -18,7 +18,7 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Construct from an ScspResponse
-     * @param response
+     * @param response The Scsp Response to be wrapped
      */
     protected CaringoAbstractResponse(ScspResponse response) {
         this.response = response;
