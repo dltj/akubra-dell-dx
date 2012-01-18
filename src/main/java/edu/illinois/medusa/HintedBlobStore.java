@@ -1,8 +1,6 @@
 package edu.illinois.medusa;
 
-import javax.print.DocFlavor;
 import javax.transaction.Transaction;
-import java.awt.image.ImagingOpException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
