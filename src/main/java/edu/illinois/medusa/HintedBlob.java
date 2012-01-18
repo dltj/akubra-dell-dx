@@ -1,19 +1,10 @@
 package edu.illinois.medusa;
 
-import com.caringo.client.ScspHeaders;
-import org.akubraproject.Blob;
-import org.akubraproject.DuplicateBlobException;
-import org.akubraproject.MissingBlobException;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
