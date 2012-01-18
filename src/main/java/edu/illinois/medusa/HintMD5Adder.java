@@ -21,11 +21,6 @@ public class HintMD5Adder extends HintAdder {
     }
 
     private byte[] md5checksum(HintedBlob blob) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            return blob.getContent().md5Sum();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 Message Digest not found");
-        }
+        return blob.md5checksum();
     }
 }
