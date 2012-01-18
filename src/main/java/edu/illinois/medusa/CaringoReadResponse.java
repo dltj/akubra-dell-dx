@@ -7,26 +7,39 @@ import java.io.File;
 import java.io.OutputStream;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 7/18/11
- * Time: 11:21 AM
- * To change this template use File | Settings | File Templates.
+ * Wrapper for response from read request to Caringo storage. Includes the temp file created to hold the data.
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 public class CaringoReadResponse extends CaringoAbstractResponse {
 
+    /**
+     * File that holds the bytes received from storage
+     */
+    protected File file;
+
+    /**
+     * The File holding the bytes read from storage.
+     * @return File holding bytes read from storage
+     */
     public File getFile() {
         return file;
     }
 
-    protected File file;
-
-
+    /**
+     * Construct this object, wrapping the Caringo response and file holding the content bytes of the response
+     *
+     * @param response ScspResponse returned by Caringo
+     * @param file File holding content of object that was read
+     */
     protected CaringoReadResponse(ScspResponse response, File file) {
         super(response);
         this.file = file;
     }
 
+    /**
+     * Remove the file holding the bytes retrieved from storage
+     */
     public void cleanupFile() {
         file.delete();
     }

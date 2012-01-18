@@ -3,14 +3,16 @@ package edu.illinois.medusa;
 import com.caringo.client.ScspResponse;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 7/18/11
- * Time: 1:11 PM
- * To change this template use File | Settings | File Templates.
+ * Wrapper for response from write to Caringo storage
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 public class CaringoWriteResponse extends CaringoAbstractResponse {
 
+    /**
+     * Construct, wrapping the response to a write request
+     * @param response ScspResponse to be wrapped
+     */
     protected CaringoWriteResponse(ScspResponse response) {
         super(response);
     }
