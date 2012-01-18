@@ -3,13 +3,20 @@ package edu.illinois.medusa;
 import java.net.URI;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 11/1/11
- * Time: 10:45 AM
+ * Extension of HintedBlob that adds hints apropos to use with Fedora. This includes headers for the stream id,
+ * repository name, and MD5 sum as well. Also handles copying headers appropriately.
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 public class FedoraBlob extends HintedBlob {
 
+    /**
+     * Construct a new FedoraBlob.
+     *
+     * @param owner Owning connection
+     * @param id ID of blob
+     * @param hints Any existing hints to use
+     */
     protected FedoraBlob(FedoraBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id, hints);
         this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-stream-id$"));
