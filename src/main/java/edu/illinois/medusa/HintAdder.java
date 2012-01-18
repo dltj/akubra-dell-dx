@@ -1,11 +1,9 @@
 package edu.illinois.medusa;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 11/30/11
- * Time: 11:22 AM
- * To change this template use File | Settings | File Templates.
+ * Abstract class defining what a HintAdder should do.
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 public abstract class HintAdder {
     public abstract void addHints(HintedBlob blob);

@@ -1,11 +1,9 @@
 package edu.illinois.medusa;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hading
- * Date: 11/30/11
- * Time: 10:50 AM
- * To change this template use File | Settings | File Templates.
+ * Enum of possible actions a rule might request when it is matched.
+ *
+ * @author Howard Ding - hding2@illinois.edu
  */
 public enum HintCopyAction {
     ACCEPT, REJECT, PASS;
