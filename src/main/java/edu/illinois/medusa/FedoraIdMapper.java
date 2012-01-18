@@ -8,18 +8,12 @@ import java.net.URI;
  * This is a completely trivial implementation of the Akubra IdMapper, which is to say that it makes
  * no changes to the IDs. This is sufficient for use with Fedora, which (as far as I can tell) uses no
  * IDs that need any quoting. Moreover at this point I feel that maintaining the Fedora IDs as is is more
- * important than being totally general for Caringo. Both are achievable, but perhaps not trivially (e.g.
- * I think URLencoding/decoding would make all strings okay for Caringo, but it would quote things that
- * I wouldn't necessarily want quoted).
- * <p/>
- * At some point we may revisit this class and make it do both things, but that time is not right now.
- *
- * Actually if we do change this at some point probably best to make another trivial mapper for use with Fedora.
+ * important than being totally general for Caringo.
  *
  * @author Howard Ding - hding2@illinois.edu
  */
 
-public class CaringoIdMapper implements IdMapper {
+public class FedoraIdMapper implements IdMapper {
 
     public URI getExternalId(URI internalId) throws NullPointerException {
         if (internalId == null)

@@ -68,7 +68,7 @@
   </bean>
 
   <bean name="fsObjectStoreMapper"
-      class="edu.illinois.medusa.CaringoIdMapper"
+      class="edu.illinois.medusa.FedoraIdMapper"
       singleton="true">
   </bean>
 
@@ -100,7 +100,7 @@
   </bean>
 
   <bean name="fsDatastreamStoreMapper"
-      class="edu.illinois.medusa.CaringoIdMapper"
+      class="edu.illinois.medusa.FedoraIdMapper"
       singleton="true">
   </bean>
   
