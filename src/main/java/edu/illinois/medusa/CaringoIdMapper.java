@@ -11,8 +11,10 @@ import java.net.URI;
  * important than being totally general for Caringo. Both are achievable, but perhaps not trivially (e.g.
  * I think URLencoding/decoding would make all strings okay for Caringo, but it would quote things that
  * I wouldn't necessarily want quoted).
- *
+ * <p/>
  * At some point we may revisit this class and make it do both things, but that time is not right now.
+ *
+ * Actually if we do change this at some point probably best to make another trivial mapper for use with Fedora.
  *
  * @author Howard Ding - hding2@illinois.edu
  */
@@ -23,14 +25,14 @@ public class CaringoIdMapper implements IdMapper {
         if (internalId == null)
             throw new NullPointerException();
         else
-            return internalId;
+            return unquoteId(internalId);
     }
 
     public URI getInternalId(URI externalId) throws NullPointerException {
         if (externalId == null)
             throw new NullPointerException();
         else
-            return externalId;
+            return quoteId(externalId);
     }
 
     public String getInternalPrefix(String externalPrefix) throws NullPointerException {
@@ -38,5 +40,13 @@ public class CaringoIdMapper implements IdMapper {
             throw new NullPointerException();
         else
             return externalPrefix;
+    }
+
+    private URI quoteId(URI id) {
+        return id;
+    }
+
+    private URI unquoteId(URI id) {
+        return id;
     }
 }
