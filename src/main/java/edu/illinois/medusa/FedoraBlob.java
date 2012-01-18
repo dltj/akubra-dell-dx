@@ -21,7 +21,7 @@ public class FedoraBlob extends HintedBlob {
         super(owner, id, hints);
         this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-stream-id$"));
         this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-repository-name$"));
-        this.hintAdders.add(new HintIdAdder());
+        this.hintAdders.add(new HintIdAdder("fedora:stream-id"));
         this.hintAdders.add(new HintMD5Adder());
     }
 
