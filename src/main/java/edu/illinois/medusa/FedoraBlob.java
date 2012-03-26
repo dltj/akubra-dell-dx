@@ -25,4 +25,8 @@ public class FedoraBlob extends HintedBlob {
         this.hintAdders.add(new HintMD5Adder());
     }
 
+    protected void preprocessWrite(CaringoOutputStream content) {
+        super.preprocessWrite(content);
+        this.addHint(":Cache-Control", "no-cache");
+    }
 }

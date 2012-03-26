@@ -9,6 +9,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -94,7 +96,6 @@ public class CaringoBlob extends AbstractBlob {
         return this.owner.info(this.id);
     }
 
-
     /**
      * Open an input stream on an existing blob from storage. This stream is managed by the blob's stream manager.
      *
@@ -103,6 +104,17 @@ public class CaringoBlob extends AbstractBlob {
      * @throws IOException          If there is an error interacting with storage or an unexpected return value.
      */
     public InputStream openInputStream() throws MissingBlobException, IOException {
+        return openInputStream(5);
+    }
+
+    /**
+     * Open an input stream on an existing blob from storage. This stream is managed by the blob's stream manager.
+     *
+     * @return InputStream on the blob's contents
+     * @throws MissingBlobException If the blob is not found
+     * @throws IOException          If there is an error interacting with storage or an unexpected return value.
+     */
+    public InputStream openInputStream(int retries) throws MissingBlobException, IOException {
         /*
             TODO
             I wonder if we could do better on this. As is, it pulls the entire stream from Caringo, writes
@@ -124,10 +136,27 @@ public class CaringoBlob extends AbstractBlob {
             read_response.cleanupFile();
             throw new MissingBlobException(this.id);
         }
-
+        if (read_response.serverError() && retries > 0) {
+            System.err.println("Error getting: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
+            try {
+            Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                //do nothing
+            }
+            return openInputStream(retries - 1);
+        }
         if (!read_response.ok()) {
             read_response.cleanupFile();
-            throw new IOException();
+            String error_string = "RESPONSE_CODE: " + read_response.response.getHttpStatusCode();
+            error_string += "\nID: " + this.getId().toString();
+            error_string += "\nRESPONSE: " + read_response.response.getResponseBody();
+            HashMap<String, ArrayList<String>> headers = read_response.response.getResponseHeaders().getHeaderMap();
+            for (String header : headers.keySet()) {
+                for (String value : headers.get(header)) {
+                    error_string += "\nHEADER: " + header + "\t" + value;
+                }
+            }
+            throw new IOException(error_string);
         }
         CaringoInputStream input = new CaringoInputStream(read_response.getFile());
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
@@ -210,6 +239,7 @@ public class CaringoBlob extends AbstractBlob {
     /**
      * Hook method meant for overriding in subclasses to do any operations needed before writing the new blob in a moveTo
      * operation.
+     *
      * @param newBlob The blob being moved to.
      */
     protected void preprocessMoveTo(CaringoBlob newBlob) {
@@ -219,12 +249,13 @@ public class CaringoBlob extends AbstractBlob {
 
     /**
      * This performs the actual write of a blob once the OutputStream used to write it is closed.
-     * @param content The output stream being written
+     *
+     * @param content   The output stream being written
      * @param overwrite Whether we can overwrite this blob if it already exists in storage
      * @throws DuplicateBlobException If this blob already exists in storage and overwrite is false
-     * @throws IOException If the blob is not created on write or there is an error interacting with storage.
+     * @throws IOException            If the blob is not created on write or there is an error interacting with storage.
      */
-    protected void write(CaringoOutputStream content, boolean overwrite) throws  DuplicateBlobException, IOException {
+    protected void write(CaringoOutputStream content, boolean overwrite) throws DuplicateBlobException, IOException {
         if (!overwrite && this.exists()) {
             throw new DuplicateBlobException(this.id);
         }
@@ -240,7 +271,7 @@ public class CaringoBlob extends AbstractBlob {
      * Interact with the owning connection to attempt to write this blob. To be overridden in a subclass if it
      * needs to do something different.
      *
-     * @param content OutputStream to be written
+     * @param content   OutputStream to be written
      * @param overwrite Whether or not it is permissible to overwrite this blob if it is already in storage
      * @return Response from storage server
      * @throws IOException If there is an error interacting with storage
@@ -252,6 +283,7 @@ public class CaringoBlob extends AbstractBlob {
 
     /**
      * Hook for subclasses to take action before trying to write to the storage server.
+     *
      * @param content The OutputStream with the bytes to be written
      */
     protected void preprocessWrite(CaringoOutputStream content) {
@@ -267,6 +299,7 @@ public class CaringoBlob extends AbstractBlob {
 
     /**
      * The response from the last interaction of this blob with the storage server.
+     *
      * @return Response from the last interaction with storage
      */
     public CaringoAbstractResponse response() {

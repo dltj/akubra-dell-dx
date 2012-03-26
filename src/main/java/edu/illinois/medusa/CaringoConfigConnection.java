@@ -77,6 +77,6 @@ public class CaringoConfigConnection {
      * @param caringoBucket
      */
     protected CaringoConfigConnection(String serverURL, String caringoDomain, String caringoBucket) {
-        this(serverURL, caringoDomain, caringoBucket, 80, 4, 4, 120, 300, 300);
+        this(serverURL, caringoDomain, caringoBucket, 80, 4, 4, 120, 1, 300);
     }
 }

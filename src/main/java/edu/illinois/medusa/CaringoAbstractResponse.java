@@ -56,6 +56,10 @@ public abstract class CaringoAbstractResponse {
         return this.status() == 201;
     }
 
+    public boolean serverError() {
+        return this.status() == 500;
+    }
+
     /**
      * Get the wrapped response
      * @return The wrapped ScspResponse

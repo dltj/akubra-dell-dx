@@ -106,6 +106,7 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
                     new ScspQueryArgs(), headersWithAuth());
             caringoReadResponse = new CaringoReadResponse(response, tmpFile);
         } catch (ScspExecutionException e) {
+            System.err.println("ERROR READING FROM CARINGO");
             throw new IOException();
         } finally {
             if (output != null)
