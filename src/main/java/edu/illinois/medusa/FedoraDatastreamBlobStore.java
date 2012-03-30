@@ -1,5 +1,7 @@
 package edu.illinois.medusa;
 
+import java.net.URI;
+
 /**
  * Created with IntelliJ IDEA.
  * User: hading
@@ -7,5 +9,13 @@ package edu.illinois.medusa;
  * Time: 10:50 AM
  * To change this template use File | Settings | File Templates.
  */
-public class FedoraDatastreamBlobStore {
+public class FedoraDatastreamBlobStore extends FedoraBlobStore {
+    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
+                                  CaringoConfigAuthentication authenticationConfig)  {
+        super(storeId, repositoryName, connectionConfig, authenticationConfig);
+    }
+
+    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
+        this(storeId, repositoryName, connectionConfig, null);
+    }
 }
