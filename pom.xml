@@ -9,7 +9,8 @@
     <version>1.0</version>
 
     <!--
-     To build the jar with dependencies: mvn assembly:single
+     To build the jar with dependencies: mvn package
+     Add -DskipTests if you don't want to do the tests or haven't configured them.
     -->
     <build>
         <plugins>
