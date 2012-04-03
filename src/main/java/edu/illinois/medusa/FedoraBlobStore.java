@@ -13,6 +13,17 @@ import javax.transaction.Transaction;
  */
 public class FedoraBlobStore extends HintedBlobStore {
 
+    protected FedoraContentRouterConfig contentRouterConfig;
+    protected String repositoryName;
+
+    protected FedoraBlobStore(URI storeID, String repositoryName, CaringoConfigConnection connectionConfig,
+                              CaringoConfigAuthentication authenticationConfig, FedoraContentRouterConfig contentRouterConfig) {
+        super(storeID, connectionConfig, authenticationConfig);
+        this.contentRouterConfig = contentRouterConfig;
+        this.repositoryName = repositoryName;
+        this.hints.addHint("fedora:repository-name", repositoryName);
+    }
+
     /**
      * Construct a new blob store with full configuration options.
      *
@@ -23,8 +34,12 @@ public class FedoraBlobStore extends HintedBlobStore {
      */
     protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
                               CaringoConfigAuthentication authenticationConfig) {
-        super(storeId, connectionConfig, authenticationConfig);
-        this.hints.addHint("fedora:repository-name", repositoryName);
+        this(storeId, repositoryName, connectionConfig, authenticationConfig, null);
+    }
+
+    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
+                              FedoraContentRouterConfig contentRouterConfig) {
+        this(storeId, repositoryName, connectionConfig, null, contentRouterConfig);
     }
 
     /**
@@ -35,7 +50,7 @@ public class FedoraBlobStore extends HintedBlobStore {
      * @param connectionConfig Configuration for connection to Caringo storage
      */
     protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
-        this(storeId, repositoryName, connectionConfig, null);
+        this(storeId, repositoryName, connectionConfig, null, null);
     }
 
     /**
@@ -61,5 +76,9 @@ public class FedoraBlobStore extends HintedBlobStore {
      */
     public FedoraBlobStoreConnection openConnection() throws IOException {
         return this.openConnection(null, null);
+    }
+
+    protected FedoraContentRouterConfig getContentRouterConfig() {
+        return this.contentRouterConfig;
     }
 }
