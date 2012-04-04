@@ -73,6 +73,10 @@ public abstract class FedoraIterator implements Iterator<URI> {
         //we want the object or not
         EnumeratorMetadataEntry entry = (EnumeratorMetadataEntry) currentResponse.getEntries().get(0);
         String streamHeader = getHeaderValue("x-fedora-meta-stream-id", entry);
+        //TODO this is where I left off - parse URI from the header value and return
+        //TODO more generally determine how this fits in with whether or not to accept the header
+        //     perhaps store both the PID and full stream id in this object and let the other method
+        //     determine from that whether it wants to accept or not?
         return URI.create(streamHeader);
     }
 
