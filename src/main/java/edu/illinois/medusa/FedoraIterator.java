@@ -1,6 +1,7 @@
 package edu.illinois.medusa;
 
 import com.caringo.client.ScspExecutionException;
+import com.caringo.client.ScspHeader;
 import com.caringo.enumerator.*;
 
 import java.io.IOException;
@@ -56,15 +57,33 @@ public abstract class FedoraIterator implements Iterator<URI> {
         return this.currentResponse == null;
     }
 
-    public URI next() throws ObjectEnumeratorException, ScspExecutionException {
-        URI uri = extractURI();
-        this.updateCurrentResponse();
-        return uri;
+    public URI next() {
+        try {
+            URI uri = extractURI();
+            this.updateCurrentResponse();
+            return uri;
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     protected URI extractURI() {
         //extract URI - maybe move this logic into accepted response (or call from there) and update a field
         //in the object at that point, since most likely we need to parse headers anyway to determine if
         //we want the object or not
+        EnumeratorMetadataEntry entry = (EnumeratorMetadataEntry) currentResponse.getEntries().get(0);
+        String streamHeader = getHeaderValue("x-fedora-meta-stream-id", entry);
+        return URI.create(streamHeader);
     }
+
+    protected String getHeaderValue(String key, EnumeratorMetadataEntry entry) {
+        ArrayList<ScspHeader> headers = entry.getScspHeaders();
+        for (ScspHeader header : headers) {
+            if (key.equals(header.getName())) {
+                return header.getValue();
+            }
+        }
+        return null;
+    }
+
 }

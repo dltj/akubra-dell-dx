@@ -44,6 +44,8 @@ public class EnumTester {
                 System.out.println("Try: " + count);
                 if (itemResponse.getEntries().size() > 0) {
                     System.out.println("finally! " + count);
+                } else {
+                    System.out.println("Iteration done: " + count);
                     break;
                 }
             }
