@@ -102,15 +102,11 @@ public class CaringoHints extends HashMap<String, String> {
      * @param value Value for hint to be added
      */
     public void addHint(String key, String value) {
-        try {
-            String quotedValue = URLEncoder.encode(value, "UTF-8");
-            if (this.containsKey(key)) {
-                this.put(key, this.get(key) + ":" + quotedValue);
-            } else {
-                this.put(key, quotedValue);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException();
+        String quotedValue = urlEncode(value);
+        if (this.containsKey(key)) {
+            this.put(key, this.get(key) + ":" + quotedValue);
+        } else {
+            this.put(key, quotedValue);
         }
     }
 
@@ -158,6 +154,7 @@ public class CaringoHints extends HashMap<String, String> {
 
     /**
      * Add header/value pairs to headers for each value contained in this object.
+     *
      * @param headers Headers object to augment
      */
     public void augmentScspHeaders(ScspHeaders headers) {
@@ -166,6 +163,14 @@ public class CaringoHints extends HashMap<String, String> {
             for (String value : this.getValues(entry.getKey())) {
                 headers.addValue(headerName, value);
             }
+        }
+    }
+
+    protected String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 
