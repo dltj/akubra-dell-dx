@@ -102,12 +102,7 @@ public class CaringoBlob extends AbstractBlob {
             return infoResponse;
         }
         if (infoResponse.serverError() && retries > 0) {
-            System.err.println("Error infoing: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                //do nothing
-            }
+            logRetryAndSleep(retries);
             return info(retries - 1);
         }
         //If we get here we've failed and are out of retries
@@ -155,12 +150,7 @@ public class CaringoBlob extends AbstractBlob {
             throw new MissingBlobException(this.id);
         }
         if (read_response.serverError() && retries > 0) {
-            System.err.println("Error getting: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
-            try {
-            Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                //do nothing
-            }
+            logRetryAndSleep(retries);
             return openInputStream(retries - 1);
         }
         if (!read_response.ok()) {
@@ -169,6 +159,15 @@ public class CaringoBlob extends AbstractBlob {
         }
         CaringoInputStream input = new CaringoInputStream(read_response.getFile());
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
+    }
+
+    private void logRetryAndSleep(int retries) {
+        System.err.println("Error getting: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            //do nothing
+        }
     }
 
     private String outOfRetriesErrorMessage(CaringoAbstractResponse response) {
