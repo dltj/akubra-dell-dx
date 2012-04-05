@@ -88,12 +88,16 @@ public class FedoraBlobStore extends HintedBlobStore {
 
     protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
         try {
-            return new FedoraIterator(this, filterPrefix);
+            return newBlobIterator(filterPrefix);
         } catch (ObjectEnumeratorException e) {
             throw new RuntimeException();
         } catch (ScspExecutionException e) {
             throw new RuntimeException();
         }
+    }
+
+    protected FedoraIterator newBlobIterator(String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
+        return new FedoraIterator(this, filterPrefix);
     }
 
 }

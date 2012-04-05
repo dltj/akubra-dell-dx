@@ -17,12 +17,12 @@ import java.util.Iterator;
 public class FedoraDatastreamBlobStore extends FedoraBlobStore {
 
     protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                      CaringoConfigAuthentication authenticationConfig, FedoraContentRouterConfig contentRouterConfig) {
+                                        CaringoConfigAuthentication authenticationConfig, FedoraContentRouterConfig contentRouterConfig) {
         super(storeId, repositoryName, connectionConfig, authenticationConfig, contentRouterConfig);
     }
 
     protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                  CaringoConfigAuthentication authenticationConfig)  {
+                                        CaringoConfigAuthentication authenticationConfig) {
         this(storeId, repositoryName, connectionConfig, authenticationConfig, null);
     }
 
@@ -35,13 +35,8 @@ public class FedoraDatastreamBlobStore extends FedoraBlobStore {
         this(storeId, repositoryName, connectionConfig, null, null);
     }
 
-    protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
-        try {
-            return new FedoraDatastreamIterator(this, filterPrefix);
-        } catch (ObjectEnumeratorException e) {
-            throw new RuntimeException();
-        } catch (ScspExecutionException e) {
-            throw new RuntimeException();
-        }
+    protected FedoraIterator newBlobIterator(String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
+        return new FedoraDatastreamIterator(this, filterPrefix);
     }
+
 }

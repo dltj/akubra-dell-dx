@@ -22,7 +22,7 @@ public class FedoraObjectBlobStore extends FedoraBlobStore {
     }
 
     protected FedoraObjectBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                  CaringoConfigAuthentication authenticationConfig)  {
+                                    CaringoConfigAuthentication authenticationConfig) {
         this(storeId, repositoryName, connectionConfig, authenticationConfig, null);
     }
 
@@ -35,13 +35,8 @@ public class FedoraObjectBlobStore extends FedoraBlobStore {
         this(storeId, repositoryName, connectionConfig, null, null);
     }
 
-    protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
-        try {
-            return new FedoraObjectIterator(this, filterPrefix);
-        } catch (ObjectEnumeratorException e) {
-            throw new RuntimeException();
-        } catch (ScspExecutionException e) {
-            throw new RuntimeException();
-        }
+    protected FedoraIterator newBlobIterator(String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
+        return new FedoraObjectIterator(this, filterPrefix);
     }
+
 }

@@ -170,5 +170,4 @@ public class FedoraIterator implements Iterator<URI> {
         return null;
     }
 
-
 }
