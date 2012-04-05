@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public abstract class FedoraIterator implements Iterator<URI> {
+public class FedoraIterator implements Iterator<URI> {
 
     protected EnumeratorResponse currentResponse;
     protected ArrayList<ScspHeader> currentHeaders;
