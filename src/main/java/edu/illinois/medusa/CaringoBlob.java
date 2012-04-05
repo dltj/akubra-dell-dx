@@ -93,7 +93,25 @@ public class CaringoBlob extends AbstractBlob {
      * @throws IOException If there is an error conducting the info request
      */
     private CaringoInfoResponse info() throws IOException {
-        return this.owner.info(this.id);
+        return this.info(5);
+    }
+
+    private CaringoInfoResponse info(int retries) throws IOException {
+        CaringoInfoResponse infoResponse = this.owner.info(this.id);
+        if (infoResponse.ok()) {
+            return infoResponse;
+        }
+        if (infoResponse.serverError() && retries > 0) {
+            System.err.println("Error infoing: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                //do nothing
+            }
+            return info(retries - 1);
+        }
+        //If we get here we've failed and are out of retries
+        throw new IOException(outOfRetriesErrorMessage(infoResponse));
     }
 
     /**
@@ -147,19 +165,23 @@ public class CaringoBlob extends AbstractBlob {
         }
         if (!read_response.ok()) {
             read_response.cleanupFile();
-            String error_string = "RESPONSE_CODE: " + read_response.response.getHttpStatusCode();
-            error_string += "\nID: " + this.getId().toString();
-            error_string += "\nRESPONSE: " + read_response.response.getResponseBody();
-            HashMap<String, ArrayList<String>> headers = read_response.response.getResponseHeaders().getHeaderMap();
-            for (String header : headers.keySet()) {
-                for (String value : headers.get(header)) {
-                    error_string += "\nHEADER: " + header + "\t" + value;
-                }
-            }
-            throw new IOException(error_string);
+            throw new IOException(outOfRetriesErrorMessage(read_response));
         }
         CaringoInputStream input = new CaringoInputStream(read_response.getFile());
         return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
+    }
+
+    private String outOfRetriesErrorMessage(CaringoAbstractResponse response) {
+        String error_string = "RESPONSE_CODE: " + response.response.getHttpStatusCode();
+        error_string += "\nID: " + this.getId().toString();
+        error_string += "\nRESPONSE: " + response.response.getResponseBody();
+        HashMap<String, ArrayList<String>> headers = response.response.getResponseHeaders().getHeaderMap();
+        for (String header : headers.keySet()) {
+            for (String value : headers.get(header)) {
+                error_string += "\nHEADER: " + header + "\t" + value;
+            }
+        }
+        return error_string;
     }
 
     /**
