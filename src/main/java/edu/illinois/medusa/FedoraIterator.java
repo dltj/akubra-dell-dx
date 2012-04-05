@@ -154,6 +154,12 @@ public class FedoraIterator implements Iterator<URI> {
     }
 
     //Require the blob to actually exist in storage
+    //There is some chance that the call to check here will throw
+    //an IOException because of an unexpected 500 error from storage.
+    //There is a little bit of a retry facility in the exists() call
+    //itself, but (imagine we're doing a rebuild on a repo with millions
+    //of objects) we may want to augment that here to make really sure
+    //that we don't die unnecessarily.
     protected boolean existenceCheck() throws IOException {
         FedoraBlob blob = blobStore.openConnection().getBlob(URI.create(currentPID), null);
         return blob.exists();
