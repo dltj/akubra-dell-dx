@@ -16,7 +16,6 @@ public class FedoraIterator implements Iterator<URI> {
     protected EnumeratorResponse currentResponse;
     protected ArrayList<ScspHeader> currentHeaders;
     protected String currentPID;
-    protected String currentStreamID;
     protected ObjectEnumerator enumerator;
     protected FedoraBlobStore blobStore;
     protected HashMap<String, String> queryArgs;
@@ -31,6 +30,7 @@ public class FedoraIterator implements Iterator<URI> {
         this.seenPIDs = new HashSet<String>();
         FedoraContentRouterConfig contentRouterConfig = blobStore.getContentRouterConfig();
         this.enumerator = new ObjectEnumerator(contentRouterConfig.host, contentRouterConfig.port, EnumeratorType.ENUM_TYPE_METADATA);
+        this.enumerator.start(contentRouterConfig.channel);
         currentHeaders = new ArrayList<ScspHeader>();
         updateCurrentResponse();
     }
@@ -40,7 +40,28 @@ public class FedoraIterator implements Iterator<URI> {
     }
 
     public boolean hasNext() {
-        return this.currentResponse != null;
+        if (currentResponse == null) {
+            stopEnumerator();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public void stopEnumerator() {
+        try {
+            if (enumerator != null) {
+                enumerator.end();
+            }
+        } catch (Exception e) {
+            //do nothing
+        } finally {
+            enumerator = null;
+        }
+    }
+
+    protected void finalize() {
+        stopEnumerator();
     }
 
     public URI next() {
@@ -59,7 +80,9 @@ public class FedoraIterator implements Iterator<URI> {
         while (true) {
             response = enumerator.next(1L, queryArgs);
             entries = response.getEntries();
-            if (entries.size() == 0) {
+            if (entries == null) {
+                throw new RuntimeException("Null entries received by metadata enumerator.");
+            } else if (entries.size() == 0) {
                 currentResponse = null;
                 return;
             } else {
@@ -94,12 +117,10 @@ public class FedoraIterator implements Iterator<URI> {
         }
     }
 
+    //note that, per HintIdAdder, the blob id itself is used as x-fedora-meta-stream-id, so that is what we should
+    //use here
     protected void parseCurrentPID() {
-        currentStreamID = getCurrentHeaderValue("x-fedora-meta-stream-id");
-        if (currentStreamID == null)
-            currentPID = null;
-        else
-            currentPID = currentStreamID.split("/")[1];
+        currentPID = getCurrentHeaderValue("x-fedora-meta-stream-id");
     }
 
     //Override in subclasses to add conditions for rejection
@@ -145,5 +166,6 @@ public class FedoraIterator implements Iterator<URI> {
         }
         return null;
     }
+
 
 }

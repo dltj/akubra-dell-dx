@@ -14,7 +14,7 @@ public class FedoraObjectIterator extends FedoraIterator {
 
     //For an object stream the id will be of the form info:fedora/PID
     protected boolean acceptResponse() throws IOException {
-        return (currentStreamID.indexOf('/') == currentStreamID.lastIndexOf('/')) && super.acceptResponse();
+        return (currentPID.indexOf('/') == currentPID.lastIndexOf('/')) && super.acceptResponse();
     }
 
 }
