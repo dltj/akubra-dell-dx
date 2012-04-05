@@ -80,10 +80,10 @@ public class FedoraIterator implements Iterator<URI> {
         while (true) {
             response = enumerator.next(1L, queryArgs);
             entries = response.getEntries();
-            //TODO still confirming with Dell, but I think null means that the content router doesn't have anything
-            //to return at time of request, but it's also not saying that the enumeration is done, So the client
-            //should wait and try again.
             if (entries == null) {
+                //TODO still confirming with Dell, but I think null means that the content router doesn't have anything
+                //to return at time of request, but it's also not saying that the enumeration is done, So the client
+                //should wait and try again.
                 throw new RuntimeException("Null entries received by metadata enumerator.");
             } else if (entries.size() == 0) {
                 currentResponse = null;
