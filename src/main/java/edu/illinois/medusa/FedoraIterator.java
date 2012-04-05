@@ -117,6 +117,9 @@ public class FedoraIterator implements Iterator<URI> {
 
     //If we've seen this pid before return false
     //If not then store it and return true
+    //Note that currently we track this in memory, but if that becomes a concern a simple embedded database
+    //would be useable (e.g. Berkeley DB, sqlite, derby). Just create along with enumerator and store pids
+    //in a table with index.
     protected boolean previouslyUnseenPID() {
         if (seenPIDs.contains(currentPID)) {
             return false;
