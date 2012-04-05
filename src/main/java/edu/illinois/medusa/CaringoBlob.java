@@ -57,8 +57,7 @@ public class CaringoBlob extends AbstractBlob {
      * @throws IOException If there is an error interacting with storage or an unexpected return status from storage.
      */
     public boolean exists() throws IOException {
-        CaringoInfoResponse info_response = this.info();
-        response = info_response;
+        response = this.info();
         if (response.notFound())
             return false;
         if (response.ok())
@@ -75,15 +74,15 @@ public class CaringoBlob extends AbstractBlob {
      *                              or there is an error in the interaction with the storage.
      */
     public long getSize() throws MissingBlobException, IOException {
-        CaringoInfoResponse info_response = this.info();
-        response = info_response;
+        CaringoInfoResponse infoResponse = this.info();
+        response = infoResponse;
         if (response.notFound()) {
             throw new MissingBlobException(this.id);
         }
         if (!response.ok()) {
             throw new IOException();
         }
-        return info_response.contentLength();
+        return infoResponse.contentLength();
     }
 
     /**
@@ -143,22 +142,22 @@ public class CaringoBlob extends AbstractBlob {
             any possible visible result until the entire operation is complete.
          */
 
-        CaringoReadResponse read_response = this.owner.read(this.id);
-        response = read_response;
-        if (read_response.ok()) {
-            CaringoInputStream input = new CaringoInputStream(read_response.getFile());
+        CaringoReadResponse readResponse = this.owner.read(this.id);
+        response = readResponse;
+        if (readResponse.ok()) {
+            CaringoInputStream input = new CaringoInputStream(readResponse.getFile());
             return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
         }
-        if (read_response.notFound()) {
-            read_response.cleanupFile();
+        if (readResponse.notFound()) {
+            readResponse.cleanupFile();
             throw new MissingBlobException(this.id);
         }
-        if (read_response.serverError() && retries > 0) {
+        if (readResponse.serverError() && retries > 0) {
             logRetryAndSleep(retries);
             return openInputStream(retries - 1);
         }
-        read_response.cleanupFile();
-        throw new IOException(outOfRetriesErrorMessage(read_response));
+        readResponse.cleanupFile();
+        throw new IOException(outOfRetriesErrorMessage(readResponse));
     }
 
     private void logRetryAndSleep(int retries) {
@@ -171,16 +170,16 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     private String outOfRetriesErrorMessage(CaringoAbstractResponse response) {
-        String error_string = "RESPONSE_CODE: " + response.response.getHttpStatusCode();
-        error_string += "\nID: " + this.getId().toString();
-        error_string += "\nRESPONSE: " + response.response.getResponseBody();
+        String errorString = "RESPONSE_CODE: " + response.response.getHttpStatusCode();
+        errorString += "\nID: " + this.getId().toString();
+        errorString += "\nRESPONSE: " + response.response.getResponseBody();
         HashMap<String, ArrayList<String>> headers = response.response.getResponseHeaders().getHeaderMap();
         for (String header : headers.keySet()) {
             for (String value : headers.get(header)) {
-                error_string += "\nHEADER: " + header + "\t" + value;
+                errorString += "\nHEADER: " + header + "\t" + value;
             }
         }
-        return error_string;
+        return errorString;
     }
 
     /**
@@ -209,9 +208,9 @@ public class CaringoBlob extends AbstractBlob {
      * @throws IOException If there is an error interacting with storage or an unexpected response code.
      */
     public void delete() throws IOException {
-        CaringoDeleteResponse delete_response = this.owner.delete(this.id);
-        response = delete_response;
-        if (!delete_response.ok() && !delete_response.notFound())
+        CaringoDeleteResponse deleteResponse = this.owner.delete(this.id);
+        response = deleteResponse;
+        if (!deleteResponse.ok() && !deleteResponse.notFound())
             throw new IOException();
     }
 
