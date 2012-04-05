@@ -1,11 +1,9 @@
 package edu.illinois.medusa;
 
 /**
- * Created with IntelliJ IDEA.
- * User: hading
- * Date: 4/3/12
- * Time: 5:27 PM
- * To change this template use File | Settings | File Templates.
+ * The expectation is that the channel will have a definition in the DX content router rules that matches
+ * the x-fedora-meta-repository-name header to some unique string for the particular repository, but no one
+ * can stop you from hooking it up to any channel that you want.
  */
 public class FedoraContentRouterConfig {
 
