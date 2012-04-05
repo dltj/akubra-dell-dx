@@ -1,8 +1,10 @@
 package edu.illinois.medusa;
 
-import com.caringo.enumerator.*;
+import com.caringo.enumerator.EnumeratorEntry;
+import com.caringo.enumerator.EnumeratorResponse;
+import com.caringo.enumerator.EnumeratorType;
+import com.caringo.enumerator.ObjectEnumerator;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
