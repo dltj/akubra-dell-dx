@@ -12,8 +12,9 @@ public class FedoraObjectIterator extends FedoraIterator {
         super(blobStore);
     }
 
-    protected boolean acceptedResponse() {
-        return true;
+    //For an object stream the id will be of the form info:fedora/PID
+    protected boolean acceptResponse() {
+        return (currentStreamID.indexOf('/') == currentStreamID.lastIndexOf('/')) && super.acceptResponse();
     }
 
 }

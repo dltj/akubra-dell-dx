@@ -13,13 +13,12 @@ import java.util.Iterator;
 public abstract class FedoraIterator implements Iterator<URI> {
 
     protected EnumeratorResponse currentResponse;
+    protected ArrayList<ScspHeader> currentHeaders;
+    protected String currentPID;
+    protected String currentStreamID;
     protected ObjectEnumerator enumerator;
     protected FedoraBlobStore blobStore;
     protected HashMap<String, String> queryArgs;
-
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
 
     protected FedoraIterator(FedoraBlobStore blobStore) throws IOException, ObjectEnumeratorException, ScspExecutionException {
         this.blobStore = blobStore;
@@ -27,10 +26,29 @@ public abstract class FedoraIterator implements Iterator<URI> {
         this.queryArgs = new HashMap<String, String>();
         FedoraContentRouterConfig contentRouterConfig = blobStore.getContentRouterConfig();
         this.enumerator = new ObjectEnumerator(contentRouterConfig.host, contentRouterConfig.port, EnumeratorType.ENUM_TYPE_METADATA);
+        currentHeaders = new ArrayList<ScspHeader>();
         updateCurrentResponse();
     }
 
-    protected void updateCurrentResponse() throws ObjectEnumeratorException, ScspExecutionException {
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasNext() {
+        return this.currentResponse != null;
+    }
+
+    public URI next() {
+        URI uri = URI.create(currentPID);
+        try {
+            this.updateCurrentResponse();
+            return uri;
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+    protected void updateCurrentResponse() throws IOException, ObjectEnumeratorException, ScspExecutionException {
         EnumeratorResponse response;
         ArrayList<EnumeratorEntry> entries;
         while (true) {
@@ -41,51 +59,58 @@ public abstract class FedoraIterator implements Iterator<URI> {
                 return;
             } else {
                 currentResponse = response;
-                if (acceptedResponse()) {
+                parseCurrentResponse();
+                if (acceptResponse())
                     return;
-                }
             }
         }
     }
 
-    //Override in subclasses to reject currentResponse as part of the enumerator
-    protected boolean acceptedResponse() {
-        return true;
+    //extract and store headers from current response and URI
+    protected void parseCurrentResponse() {
+        parseCurrentHeaders();
+        parseCurrentPID();
     }
 
-    public boolean hasNext() {
-        return this.currentResponse == null;
-    }
-
-    public URI next() {
-        try {
-            URI uri = extractURI();
-            this.updateCurrentResponse();
-            return uri;
-        } catch (Exception e) {
-            throw new RuntimeException();
+    //Hopefully at some point this will just be currentResponse.getEntries.get(0).getScspHeaders() but that
+    //doesn't work correctly right now. My parsing here will also fail if there are header values that span
+    //multiple lines, but I don't think we'll run into that. If so we can take that into account or find
+    //an existing library that parses a string representing http headers.
+    protected void parseCurrentHeaders() {
+        String responseBody = currentResponse.getResponseBody();
+        String[] lines = responseBody.split("\r?\n|\r");
+        currentHeaders.clear();
+        for (String line : lines) {
+            int index = line.indexOf(':');
+            if (index >= 0) {
+                ScspHeader header = new ScspHeader(line.substring(0, index), line.substring(index + 1).trim());
+                currentHeaders.add(header);
+            }
         }
     }
 
-    protected URI extractURI() {
-        //extract URI - maybe move this logic into accepted response (or call from there) and update a field
-        //in the object at that point, since most likely we need to parse headers anyway to determine if
-        //we want the object or not
-        EnumeratorMetadataEntry entry = (EnumeratorMetadataEntry) currentResponse.getEntries().get(0);
-        String streamHeader = getHeaderValue("x-fedora-meta-stream-id", entry);
-        //TODO this is where I left off - parse URI from the header value and return
-        //TODO more generally determine how this fits in with whether or not to accept the header
-        //     perhaps store both the PID and full stream id in this object and let the other method
-        //     determine from that whether it wants to accept or not?
-        return URI.create(streamHeader);
+    protected void parseCurrentPID() {
+        currentStreamID = getCurrentHeaderValue("x-fedora-meta-stream-id");
+        if (currentStreamID == null)
+            currentPID = null;
+        else
+            currentPID = currentStreamID.split("/")[1];
     }
 
-    protected String getHeaderValue(String key, EnumeratorMetadataEntry entry) {
-        ArrayList<ScspHeader> headers = entry.getScspHeaders();
-        for (ScspHeader header : headers) {
-            if (key.equals(header.getName())) {
+    //Override in subclasses to add conditions for rejection
+    //Currently we check to make sure that the object actually exists in storage
+    protected boolean acceptResponse() throws IOException {
+        FedoraBlob blob = blobStore.openConnection().getBlob(URI.create(currentPID), null);
+        return blob.exists();
+    }
+
+    //Note that currently this only finds the first matching header. That's all we need for now.
+    protected String getCurrentHeaderValue(String key) {
+        if (currentHeaders == null)
+            return null;
+        for (ScspHeader header : currentHeaders) {
+            if (key.equals(header.getName()))
                 return header.getValue();
-            }
         }
         return null;
     }

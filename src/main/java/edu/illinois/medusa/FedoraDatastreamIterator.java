@@ -12,8 +12,9 @@ public class FedoraDatastreamIterator extends FedoraIterator {
         super(blobStore);
     }
 
-    protected boolean acceptedResponse() {
-        return true;
+    //for a datastream the stream id will be of the form info:fedora/PID/DSID/DSID.VERSION
+    protected boolean acceptResponse() {
+        return (currentStreamID.indexOf('/') != currentStreamID.lastIndexOf('/')) && super.acceptResponse();
     }
 
 }

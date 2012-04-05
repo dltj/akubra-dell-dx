@@ -1,8 +1,6 @@
 package edu.illinois.medusa;
 
-import com.caringo.enumerator.EnumeratorResponse;
-import com.caringo.enumerator.EnumeratorType;
-import com.caringo.enumerator.ObjectEnumerator;
+import com.caringo.enumerator.*;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -20,7 +18,7 @@ public class EnumTester {
     public static void main(String[] argv) throws Exception {
         final String host = "172.22.70.6";
         final int port = 8080;
-        final String channel = "PublishAll";
+        final String channel = "development-test-repo";
         final Long maxItems = 1L;
         Date startDate = new Date(2000, 1, 1);
         Date endDate = new Date(2099, 1, 1);
@@ -43,7 +41,9 @@ public class EnumTester {
                 itemResponse = enumerator.next(maxItems, queryArgs);
                 System.out.println("Try: " + count);
                 if (itemResponse.getEntries().size() > 0) {
-                    System.out.println("finally! " + count);
+                    EnumeratorEntry entry = itemResponse.getEntries().get(0);
+                    System.out.println("Object UUID: " + entry.getUuid());
+                    System.out.println(itemResponse.getResponseBody());
                 } else {
                     System.out.println("Iteration done: " + count);
                     break;
