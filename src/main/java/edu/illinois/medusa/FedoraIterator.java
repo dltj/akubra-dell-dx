@@ -100,8 +100,11 @@ public class FedoraIterator implements Iterator<URI> {
     }
 
     //Override in subclasses to add conditions for rejection
-    //Currently we check to make sure that the object actually exists in storage
+    //Currently we check to make sure the currentPID starts with the right prefix (if provided)
+    //and that the object actually exists in storage
     protected boolean acceptResponse() throws IOException {
+        if (filterPrefix != null && !currentPID.startsWith(filterPrefix))
+            return false;
         FedoraBlob blob = blobStore.openConnection().getBlob(URI.create(currentPID), null);
         return blob.exists();
     }
