@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class FedoraIterator implements Iterator<URI> {
@@ -20,12 +21,14 @@ public class FedoraIterator implements Iterator<URI> {
     protected FedoraBlobStore blobStore;
     protected HashMap<String, String> queryArgs;
     protected String filterPrefix;
+    protected HashSet<String> seenPIDs;
 
     protected FedoraIterator(FedoraBlobStore blobStore, String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
         this.blobStore = blobStore;
         this.filterPrefix = filterPrefix;
         this.currentResponse = null;
         this.queryArgs = new HashMap<String, String>();
+        this.seenPIDs = new HashSet<String>();
         FedoraContentRouterConfig contentRouterConfig = blobStore.getContentRouterConfig();
         this.enumerator = new ObjectEnumerator(contentRouterConfig.host, contentRouterConfig.port, EnumeratorType.ENUM_TYPE_METADATA);
         currentHeaders = new ArrayList<ScspHeader>();
@@ -100,11 +103,31 @@ public class FedoraIterator implements Iterator<URI> {
     }
 
     //Override in subclasses to add conditions for rejection
-    //Currently we check to make sure the currentPID starts with the right prefix (if provided)
-    //and that the object actually exists in storage
+    //We break out each check into a separate method for simplicity
     protected boolean acceptResponse() throws IOException {
-        if (filterPrefix != null && !currentPID.startsWith(filterPrefix))
+        return prefixCheck() && previouslyUnseenPID() && existenceCheck();
+    }
+
+    //If filterPrefix is set then require the currentPID to start with it; if not always accept
+    protected boolean prefixCheck() {
+        if (filterPrefix == null)
+            return true;
+        return currentPID.startsWith(filterPrefix);
+    }
+
+    //If we've seen this pid before return false
+    //If not then store it and return true
+    protected boolean previouslyUnseenPID() {
+        if (seenPIDs.contains(currentPID)) {
             return false;
+        } else {
+            seenPIDs.add(currentPID);
+            return true;
+        }
+    }
+
+    //Require the blob to actually exist in storage
+    protected boolean existenceCheck() throws IOException {
         FedoraBlob blob = blobStore.openConnection().getBlob(URI.create(currentPID), null);
         return blob.exists();
     }
