@@ -98,7 +98,7 @@ public class CaringoBlob extends AbstractBlob {
 
     private CaringoInfoResponse info(int retries) throws IOException {
         CaringoInfoResponse infoResponse = this.owner.info(this.id);
-        if (infoResponse.ok()) {
+        if (!infoResponse.serverError()) {
             return infoResponse;
         }
         if (infoResponse.serverError() && retries > 0) {
@@ -145,6 +145,10 @@ public class CaringoBlob extends AbstractBlob {
 
         CaringoReadResponse read_response = this.owner.read(this.id);
         response = read_response;
+        if (read_response.ok()) {
+            CaringoInputStream input = new CaringoInputStream(read_response.getFile());
+            return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
+        }
         if (read_response.notFound()) {
             read_response.cleanupFile();
             throw new MissingBlobException(this.id);
@@ -153,12 +157,8 @@ public class CaringoBlob extends AbstractBlob {
             logRetryAndSleep(retries);
             return openInputStream(retries - 1);
         }
-        if (!read_response.ok()) {
-            read_response.cleanupFile();
-            throw new IOException(outOfRetriesErrorMessage(read_response));
-        }
-        CaringoInputStream input = new CaringoInputStream(read_response.getFile());
-        return this.getStreamManager().manageInputStream(this.owner, new BufferedInputStream(input));
+        read_response.cleanupFile();
+        throw new IOException(outOfRetriesErrorMessage(read_response));
     }
 
     private void logRetryAndSleep(int retries) {
