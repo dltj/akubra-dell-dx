@@ -141,9 +141,11 @@ public class FedoraIterator implements Iterator<URI> {
 
     //If we've seen this pid before return false
     //If not then store it and return true
-    //Note that currently we track this in memory, but if that becomes a concern a simple embedded database
-    //would be useable (e.g. Berkeley DB, sqlite, derby). Just create along with enumerator and store pids
-    //in a table with index.
+    //Some simple ruby tests with SQLite and BDB seem to indicate that
+    //SQLite won't do this well but BDB should handle it with no problem
+    //should we need to offload this work to the file system.
+    //With BDB I can generate 10^6 keys and check and store them in about
+    //20s. So, no problem.
     protected boolean previouslyUnseenPID() {
         if (seenPIDs.contains(currentPID)) {
             return false;
