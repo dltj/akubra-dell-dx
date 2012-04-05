@@ -7,6 +7,7 @@ import org.akubraproject.impl.StreamManager;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.print.DocFlavor;
 import javax.transaction.Transaction;
@@ -108,4 +109,8 @@ public class CaringoBlobStore extends AbstractBlobStore {
         return client;
     }
 
+    //Not implemented here, but FedoraBlobStore and its subclasses will implement
+    protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
+        throw new UnsupportedOperationException("blob-id listing not supported");
+    }
 }

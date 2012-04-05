@@ -1,7 +1,11 @@
 package edu.illinois.medusa;
 
+import com.caringo.client.ScspExecutionException;
+import com.caringo.enumerator.ObjectEnumeratorException;
+
 import java.io.IOException;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.Map;
 import javax.transaction.Transaction;
 
@@ -81,4 +85,15 @@ public class FedoraBlobStore extends HintedBlobStore {
     protected FedoraContentRouterConfig getContentRouterConfig() {
         return this.contentRouterConfig;
     }
+
+    protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
+        try {
+            return new FedoraIterator(this, filterPrefix);
+        } catch (ObjectEnumeratorException e) {
+            throw new RuntimeException();
+        } catch (ScspExecutionException e) {
+            throw new RuntimeException();
+        }
+    }
+
 }

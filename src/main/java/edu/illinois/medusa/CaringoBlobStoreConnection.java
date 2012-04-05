@@ -52,17 +52,12 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     }
 
     /**
-     * Not implemented by this connection class.
      * @param filterPrefix
      * @return
      */
-    //TODO This may be possible. I think that there needs to be DX Content Router instance that has set up a channel
-    //publishing all items in the bucket. Then we can use the Enumerator API to connect to this publisher and
-    //get metadata for all the items in the bucket. However, I'm not totally sure all of that goes. We'll want
-    //to figure this out in order to allow fedora rebuilding, but that may wait until we have our local cluster
-    //working.
-    public Iterator<URI> listBlobIds(String filterPrefix) {
-        throw new UnsupportedOperationException("blob-id listing not supported");
+    //delegate this to the BlobStore
+    public Iterator<URI> listBlobIds(String filterPrefix) throws IOException{
+        return this.owner.listBlobIds(filterPrefix);
     }
 
     /**

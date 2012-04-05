@@ -8,12 +8,12 @@ import java.net.URI;
 
 public class FedoraDatastreamIterator extends FedoraIterator {
 
-    protected FedoraDatastreamIterator(FedoraBlobStore blobStore) throws IOException, ObjectEnumeratorException, ScspExecutionException {
-        super(blobStore);
+    protected FedoraDatastreamIterator(FedoraBlobStore blobStore, String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
+        super(blobStore, filterPrefix);
     }
 
     //for a datastream the stream id will be of the form info:fedora/PID/DSID/DSID.VERSION
-    protected boolean acceptResponse() {
+    protected boolean acceptResponse() throws IOException {
         return (currentStreamID.indexOf('/') != currentStreamID.lastIndexOf('/')) && super.acceptResponse();
     }
 

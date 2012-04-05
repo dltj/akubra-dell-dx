@@ -1,6 +1,11 @@
 package edu.illinois.medusa;
 
+import com.caringo.client.ScspExecutionException;
+import com.caringo.enumerator.ObjectEnumeratorException;
+
+import java.io.IOException;
 import java.net.URI;
+import java.util.Iterator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,5 +33,15 @@ public class FedoraDatastreamBlobStore extends FedoraBlobStore {
 
     protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
         this(storeId, repositoryName, connectionConfig, null, null);
+    }
+
+    protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
+        try {
+            return new FedoraDatastreamIterator(this, filterPrefix);
+        } catch (ObjectEnumeratorException e) {
+            throw new RuntimeException();
+        } catch (ScspExecutionException e) {
+            throw new RuntimeException();
+        }
     }
 }

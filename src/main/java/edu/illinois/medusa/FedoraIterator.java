@@ -19,9 +19,11 @@ public class FedoraIterator implements Iterator<URI> {
     protected ObjectEnumerator enumerator;
     protected FedoraBlobStore blobStore;
     protected HashMap<String, String> queryArgs;
+    protected String filterPrefix;
 
-    protected FedoraIterator(FedoraBlobStore blobStore) throws IOException, ObjectEnumeratorException, ScspExecutionException {
+    protected FedoraIterator(FedoraBlobStore blobStore, String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
         this.blobStore = blobStore;
+        this.filterPrefix = filterPrefix;
         this.currentResponse = null;
         this.queryArgs = new HashMap<String, String>();
         FedoraContentRouterConfig contentRouterConfig = blobStore.getContentRouterConfig();
