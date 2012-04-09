@@ -6,3 +6,9 @@ classes as appropriate as are the mappers for each. Also there are some added
 beans for configuration of connection information and authentication
 information (if desired - if not null can be used instead of a 
 CarinfoConfigAuthentication)
+
+dx-rules-unfiltered.xml - an example of how you might configure the storage's
+content router in order to be able to enumerate the named objects of a 
+collection. Note that the Fedora blob stores distinguish if a storage named
+object is a fedora data stream or object, so the content router rules can
+be simple and enumerate all of the fedora streams.
