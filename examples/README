@@ -2,10 +2,19 @@ akubra-llstore.xml - this is an example for the Fedora digital repository
 system. You'd use a config file like this in $FEDORA_HOME/server/config.
 The main difference from the file system config file is that the two stores 
 (one each for fedora objects and datastreams) are replaced with akubra-caringo
-classes as appropriate as are the mappers for each. Also there are some added
-beans for configuration of connection information and authentication
-information (if desired - if not null can be used instead of a 
-CarinfoConfigAuthentication)
+classes as appropriate as are the mappers for each. The stores are 
+constructed with a file system path to a properties file that contains 
+configuration information. Typically the same properties file and 
+configuration settings may be used for both, although if you have special
+needs you may want to make them different.
+
+akubra-llstore.properties - this is an example of configuration settings for
+the akubra plugin. It contains such things as connection configuration for
+the storage system, configuration for the blob store itself, and optional
+configurations such as authentication and counter router connection
+information. It can reside anywhere as long as akubra-llstore.xml is 
+configured with the right path, although $FEDORA_HOME/server/config seems
+like a logical place for it.
 
 dx-rules-unfiltered.xml - an example of how you might configure the storage's
 content router in order to be able to enumerate the named objects of a 

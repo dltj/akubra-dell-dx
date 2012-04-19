@@ -32,7 +32,7 @@ public class CaringoBlob extends AbstractBlob {
     /**
      * Construct from connection and id for blob.
      *
-     * @param owner Owning BlboStoreConnection
+     * @param owner Owning BlobStoreConnection
      * @param id    ID of blob
      */
     protected CaringoBlob(CaringoBlobStoreConnection owner, URI id) {
