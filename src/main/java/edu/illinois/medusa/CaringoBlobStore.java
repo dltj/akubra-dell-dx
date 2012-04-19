@@ -4,11 +4,14 @@ import com.caringo.client.ScspClient;
 import org.akubraproject.impl.AbstractBlobStore;
 import org.akubraproject.impl.StreamManager;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import javax.print.DocFlavor;
 import javax.transaction.Transaction;
 
@@ -34,6 +37,7 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     /**
      * The bucket used on the storage server.
+     *
      * @return Bucket name used on storage server.
      */
     public String getBucketName() {
@@ -42,39 +46,78 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     /**
      * The stream manager for the BlobStore.
-     * @return  StreamManager for this BlobStore
+     *
+     * @return StreamManager for this BlobStore
      */
     public StreamManager getStreamManager() {
         return streamManager;
     }
 
-    /**
-     * Constructor with ID and configuration for connection and authentication
-     * @param storeId ID for this store
-     * @param connectionConfig Configuration for connection to storage server
-     * @param authenticationConfig Configuration for authentication to storage server. May be null if authentication is unused.
-     */
-    protected CaringoBlobStore(URI storeId, CaringoConfigConnection connectionConfig, CaringoConfigAuthentication authenticationConfig) {
-        super (storeId);
-        this.connectionConfig = connectionConfig;
-        this.authenticationConfig = authenticationConfig;
+    protected CaringoBlobStore(URI storeId, String configFilePath) {
+        super(storeId);
+        this.configStore(configFilePath);
         this.streamManager = new StreamManager();
     }
 
-    /**
-     * Constructor with ID and configuration for connection. Authentication will not be used.
-     * @param storeId ID for this store
-     * @param connectionConfig Configuration for connection to storage server
-     */
-    protected CaringoBlobStore(URI storeId, CaringoConfigConnection connectionConfig) {
-        this(storeId, connectionConfig, null);
+    protected void configStore(String configFilePath) {
+        Properties config = this.loadConfigFile(configFilePath);
+        this.configFromProperties(config);
+    }
+
+    //This does the actual configuration work and should be overridden in subclasses for any additional work
+    //that they want to do.
+    protected void configFromProperties(Properties config) {
+        configConnection(config);
+        configAuth(config);
+    }
+
+    protected void configConnection(Properties config) {
+        String host = config.getProperty("connection.host");
+        String domain = config.getProperty("connection.domain");
+        String bucket = config.getProperty("connection.bucket");
+        if (host == null || bucket == null) {
+            throw new RuntimeException("Required connection parameter for BlobStore not configured in properties file.");
+        }
+        this.connectionConfig = new CaringoConfigConnection(host, domain, bucket);
+    }
+
+    protected void configAuth(Properties config) {
+        String user = config.getProperty("authentication.user");
+        String password = config.getProperty("authentication.password");
+        String realm = config.getProperty("authentication.realm");
+        //Unless all these are set we assume that authentication is not desired
+        if (user == null || password == null || realm == null) {
+            this.authenticationConfig = null;
+        } else {
+            this.authenticationConfig = new CaringoConfigAuthentication(user, password, realm);
+        }
+    }
+
+    protected Properties loadConfigFile(String configFilePath) {
+        try {
+            Properties properties = new Properties();
+            FileInputStream propertyStream = null;
+            try {
+                propertyStream = new FileInputStream(configFilePath);
+                properties.load(propertyStream);
+            } finally {
+                if (propertyStream != null)
+                    propertyStream.close();
+            }
+            return properties;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Akubra-Caringo config file " + configFilePath + " not found.");
+        } catch (IOException e) {
+            throw new RuntimeException("IOException initializing Akubra BlobStore");
+        }
     }
 
     /**
      * Open a new connection to this store.
-     * @param tx For this BlobStore this must be null - transactions are unsupported.
+     *
+     * @param tx    For this BlobStore this must be null - transactions are unsupported.
      * @param hints For this BlobStore this is ignored.
-     * @return  A new connection to this BlobStore
+     * @return A new connection to this BlobStore
      * @throws IOException If the tx argument is not null or there is an error opening the connection.
      */
     public CaringoBlobStoreConnection openConnection(Transaction tx, Map<String, String> hints) throws IOException {
@@ -86,6 +129,7 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     /**
      * Open a new connection to this store
+     *
      * @return A new connection to this BlobStore
      * @throws IOException If there is an error opening the connection.
      */
@@ -95,6 +139,7 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     /**
      * Get a new SDK ScspClient to Caringo storage.
+     *
      * @return A new SDK client to Caringo storage
      * @throws IOException If there is an error getting a client
      */

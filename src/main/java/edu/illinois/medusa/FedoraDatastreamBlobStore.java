@@ -6,6 +6,7 @@ import com.caringo.enumerator.ObjectEnumeratorException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,24 +17,13 @@ import java.util.Iterator;
  */
 public class FedoraDatastreamBlobStore extends FedoraBlobStore {
 
-    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                        CaringoConfigAuthentication authenticationConfig, FedoraContentRouterConfig contentRouterConfig) {
-        super(storeId, repositoryName, connectionConfig, authenticationConfig, contentRouterConfig);
-    }
+    protected FedoraDatastreamBlobStore(URI storeID, String configFilePath) {
+            super(storeID, configFilePath);
+        }
 
-    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                        CaringoConfigAuthentication authenticationConfig) {
-        this(storeId, repositoryName, connectionConfig, authenticationConfig, null);
-    }
-
-    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                                        FedoraContentRouterConfig contentRouterConfig) {
-        this(storeId, repositoryName, connectionConfig, null, contentRouterConfig);
-    }
-
-    protected FedoraDatastreamBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
-        this(storeId, repositoryName, connectionConfig, null, null);
-    }
+    protected String configContentRouterChannel(Properties config) {
+            return config.getProperty("content-router.datastream-channel", config.getProperty("content-router.channel"));
+        }
 
     protected FedoraIterator newBlobIterator(String filterPrefix) throws IOException, ObjectEnumeratorException, ScspExecutionException {
         return new FedoraDatastreamIterator(this, filterPrefix);

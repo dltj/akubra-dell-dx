@@ -18,26 +18,9 @@ public class HintedBlobStore extends CaringoBlobStore {
      */
     protected CaringoHints hints;
 
-    /**
-     * Construct a new store with all configuration information
-     *
-     * @param storeId ID for the store
-     * @param connectionConfig Configuration for connection to Caringo storage
-     * @param authenticationConfig Configuration for authentication to Caringo storage  - may be null
-     */
-    protected HintedBlobStore(URI storeId, CaringoConfigConnection connectionConfig, CaringoConfigAuthentication authenticationConfig) {
-        super(storeId, connectionConfig, authenticationConfig);
+    protected HintedBlobStore(URI storeId, String configFilePath) {
+        super(storeId, configFilePath);
         this.hints = new CaringoHints();
-    }
-
-    /**
-     * Construct a new store with no authentication
-     *
-     * @param storeId ID for the store
-     * @param connectionConfig Connection configuration for Caringo storage
-     */
-    protected HintedBlobStore(URI storeId, CaringoConfigConnection connectionConfig) {
-        this(storeId, connectionConfig, null);
     }
 
     /**

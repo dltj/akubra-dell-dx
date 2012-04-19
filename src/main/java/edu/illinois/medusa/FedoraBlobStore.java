@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import javax.transaction.Transaction;
 
 /**
@@ -20,47 +21,44 @@ public class FedoraBlobStore extends HintedBlobStore {
     protected FedoraContentRouterConfig contentRouterConfig;
     protected String repositoryName;
 
-    protected FedoraBlobStore(URI storeID, String repositoryName, CaringoConfigConnection connectionConfig,
-                              CaringoConfigAuthentication authenticationConfig, FedoraContentRouterConfig contentRouterConfig) {
-        super(storeID, connectionConfig, authenticationConfig);
-        this.contentRouterConfig = contentRouterConfig;
-        this.repositoryName = repositoryName;
+    protected FedoraBlobStore(URI storeID, String configFilePath) {
+        super(storeID, configFilePath);
         this.hints.addHint("fedora:repository-name", repositoryName);
     }
 
-    /**
-     * Construct a new blob store with full configuration options.
-     *
-     * @param storeId ID to give to this store
-     * @param repositoryName Name of Fedora repository. Stored in Caringo metadata.
-     * @param connectionConfig Configuration for connection to Caringo storage
-     * @param authenticationConfig Configuration for authentication to Caringo storage. May be null.
-     */
-    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                              CaringoConfigAuthentication authenticationConfig) {
-        this(storeId, repositoryName, connectionConfig, authenticationConfig, null);
+    protected void configFromProperties(Properties config) {
+        super.configFromProperties(config);
+        this.configRepositoryName(config);
+        this.configContentRouter(config);
     }
 
-    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig,
-                              FedoraContentRouterConfig contentRouterConfig) {
-        this(storeId, repositoryName, connectionConfig, null, contentRouterConfig);
+    protected void configRepositoryName(Properties config) {
+        String name = config.getProperty("store.repository-name");
+        if (name == null)
+            throw new RuntimeException("Repository name not set in akubra-caringo configuration.");
+        this.repositoryName = name;
     }
 
-    /**
-     * Construct a new blob store without authentication.
-     *
-     * @param storeId ID to give to this store
-     * @param repositoryName Name of Fedora repository. Stored in Caringo metadata.
-     * @param connectionConfig Configuration for connection to Caringo storage
-     */
-    protected FedoraBlobStore(URI storeId, String repositoryName, CaringoConfigConnection connectionConfig) {
-        this(storeId, repositoryName, connectionConfig, null, null);
+    protected void configContentRouter(Properties config) {
+        String host = config.getProperty("content-router.host");
+        String port = config.getProperty("content-router.port");
+        String channel = this.configContentRouterChannel(config);
+        if (host == null || port == null || channel == null) {
+            this.contentRouterConfig = null;
+        } else {
+            this.contentRouterConfig = new FedoraContentRouterConfig(host, Integer.parseInt(port), channel);
+        }
+    }
+
+    //override in subclasses to have more control over channel
+    protected String configContentRouterChannel(Properties config) {
+        return config.getProperty("content-router.channel");
     }
 
     /**
      * Return a new connection to the blob store
      *
-     * @param tx Transaction. Must be null for this store.
+     * @param tx    Transaction. Must be null for this store.
      * @param hints Hints to initialize connection
      * @return New connection to blob store
      * @throws IOException If there is an error creating the connection
