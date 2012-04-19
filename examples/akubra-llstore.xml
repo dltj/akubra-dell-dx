@@ -40,31 +40,11 @@
     <constructor-arg><ref bean="fsDatastreamStoreMapper"/></constructor-arg>
   </bean>
 
-  <bean name="fsObjectStoreConnectionConfig"
-	class="edu.illinois.medusa.CaringoConfigConnection">
-    <constructor-arg value="libstor.grainger.illinois.edu"/>
-    <constructor-arg value="medusa.grainger.illinois.edu"/>
-    <constructor-arg value="test"/>
-  </bean>
-
-  <bean name="fsObjectStoreAuthConfig"
-	class="edu.illinois.medusa.CaringoConfigAuthentication">
-    <constructor-arg value="test-user"/>
-    <constructor-arg value="test-user-password"/>
-    <constructor-arg value="medusa.grainger.illinois.edu/test"/>
-  </bean>
-
   <bean name="fsObjectStore"
-	class="edu.illinois.medusa.FedoraBlobStore"
+	class="edu.illinois.medusa.FedoraObjectBlobStore"
 	singleton="true">
     <constructor-arg value="caringo"/>
-    <constructor-arg value="development-test-repo"/>
-    <constructor-arg>
-      <ref bean="fsObjectStoreConnectionConfig"/>
-    </constructor-arg>
-    <constructor-arg>
-      <ref bean="fsObjectStoreAuthConfig"/>
-    </constructor-arg>
+    <constructor-arg value="/path/to/akubra-caringo.properties"/>
   </bean>
 
   <bean name="fsObjectStoreMapper"
@@ -72,31 +52,11 @@
       singleton="true">
   </bean>
 
-  <bean name="fsDataStreamStoreConnectionConfig"
-	class="edu.illinois.medusa.CaringoConfigConnection">
-    <constructor-arg value="libstor.grainger.illinois.edu"/>
-    <constructor-arg value="medusa.grainger.illinois.edu"/>
-    <constructor-arg value="test"/>
-  </bean>
-
-  <bean name="fsDataStreamStoreAuthConfig"
-	class="edu.illinois.medusa.CaringoConfigAuthentication">
-    <constructor-arg value="test-user"/>
-    <constructor-arg value="test-user-password"/>
-    <constructor-arg value="medusa.grainger.illinois.edu/test"/>
-  </bean>
-
   <bean name="fsDatastreamStore"
-	class="edu.illinois.medusa.FedoraBlobStore"
+	class="edu.illinois.medusa.FedoraDatastreamBlobStore"
 	singleton="true">
     <constructor-arg value="caringo"/>
-    <constructor-arg value="development-test-repo"/>
-    <constructor-arg>
-      <ref bean="fsDataStreamStoreConnectionConfig"/>
-    </constructor-arg>
-    <constructor-arg>
-      <ref bean="fsDataStreamStoreAuthConfig"/>
-    </constructor-arg>
+    <constructor-arg value="/path/to/akubra-caringo.properties"/>
   </bean>
 
   <bean name="fsDatastreamStoreMapper"
@@ -104,32 +64,4 @@
       singleton="true">
   </bean>
   
-<!--
-  <bean name="fsObjectStore"
-        class="org.akubraproject.fs.FSBlobStore"
-        singleton="true">
-    <constructor-arg value="urn:example.org:fsObjectStore"/>
-    <constructor-arg value="/home/hading/src/fedora/data/objectStore"/>
-  </bean>
-
-  <bean name="fsObjectStoreMapper"
-        class="org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper"
-        singleton="true">
-    <constructor-arg value="##"/>
-  </bean>
-
-  <bean name="fsDatastreamStore"
-        class="org.akubraproject.fs.FSBlobStore"
-        singleton="true">
-    <constructor-arg value="urn:example.org:fsDatastreamStore"/>
-    <constructor-arg value="/home/hading/src/fedora/data/datastreamStore"/>
-  </bean>
-
-  <bean name="fsDatastreamStoreMapper"
-        class="org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper"
-        singleton="true">
-    <constructor-arg value="##"/>
-  </bean>
--->
-
 </beans>
