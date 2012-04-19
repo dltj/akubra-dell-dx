@@ -13,13 +13,10 @@ import java.util.Iterator;
 public class EnumTester2 {
 
     public static void main(String[] argv) throws Exception {
-        //create connection, router configs
-        CaringoConfigConnection connectionConfig = new CaringoConfigConnection("libstor.grainger.illinois.edu", "medusa.grainger.illinois.edu", "open");
-        FedoraContentRouterConfig contentRouterConfig = new FedoraContentRouterConfig("172.22.70.6", 8080, "development-test-repo");
 
         //Get blobstores
-        FedoraObjectBlobStore objects = new FedoraObjectBlobStore(URI.create("objects"), "development-test-repo", connectionConfig, contentRouterConfig);
-        FedoraDatastreamBlobStore datastreams = new FedoraDatastreamBlobStore(URI.create("datastreams"), "development-test-repo", connectionConfig, contentRouterConfig);
+        FedoraObjectBlobStore objects = new FedoraObjectBlobStore(URI.create("objects"), "tmp/enum-tester-2-config.properties");
+        FedoraDatastreamBlobStore datastreams = new FedoraDatastreamBlobStore(URI.create("datastreams"), "tmp/enum-tester-2-config.properties");
 
         //get enumerators
         Iterator<URI> objectIterator = objects.openConnection().listBlobIds(null);
