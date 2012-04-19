@@ -22,7 +22,7 @@ public class HintedBlobTest extends AbstractBlobTest {
 
     @BeforeClass
     private void getStore() throws Exception {
-        store = new HintedBlobStore(URI.create("caringo"), CaringoBlobStoreTest.caringoConfigConnection(), CaringoBlobStoreTest.caringoConfigAuthentication());
+        store = new HintedBlobStore(URI.create("caringo"), TestConfig.configFileName);
     }
 
     private void openConnection() throws IOException {

@@ -27,40 +27,13 @@ public class CaringoBlobStoreTest {
         store = newStore();
     }
 
-    public static void ensureProperties() throws Exception {
-        if (properties == null) {
-            properties = new Properties();
-            FileInputStream propertyStream = null;
-            try {
-                propertyStream = new FileInputStream("src/test/java/edu/illinois/medusa/test-config.properties");
-                properties.load(propertyStream);
-            } finally {
-                if (propertyStream != null)
-                    propertyStream.close();
-            }
-        }
-    }
-
     public static CaringoBlobStore newStore() throws Exception {
-        return new CaringoBlobStore(URI.create("caringo"), caringoConfigConnection(), caringoConfigAuthentication());
-    }
-
-    public static CaringoConfigAuthentication caringoConfigAuthentication() throws Exception {
-        ensureProperties();
-        return new CaringoConfigAuthentication(properties.getProperty("auth.user"), properties.getProperty("auth.password"),
-                properties.getProperty("auth.realm"));
-    }
-
-    public static CaringoConfigConnection caringoConfigConnection() throws Exception {
-        ensureProperties();
-        return new CaringoConfigConnection(properties.getProperty("conn.url"), properties.getProperty("conn.caringo_domain"),
-                properties.getProperty("conn.caringo_bucket"));
+        return new CaringoBlobStore(URI.create("caringo"), TestConfig.configFileName);
     }
 
     @Test
     public void testGetBucketName() throws Exception {
-        ensureProperties();
-        Assert.assertEquals(store.getBucketName(), properties.getProperty("conn.caringo_bucket"));
+        Assert.assertEquals(store.getBucketName(), TestConfig.getProperty("connection.bucket"));
     }
 
 }

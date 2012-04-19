@@ -22,8 +22,7 @@ public class FedoraBlobTest extends AbstractBlobTest {
 
     @BeforeClass
     private void getStore() throws Exception {
-        store = new FedoraBlobStore(URI.create("fedora"), "test-repository", CaringoBlobStoreTest.caringoConfigConnection(),
-                CaringoBlobStoreTest.caringoConfigAuthentication());
+        store = new FedoraBlobStore(URI.create("fedora"), TestConfig.configFileName);
     }
 
     private void openConnection() throws IOException {
@@ -42,7 +41,7 @@ public class FedoraBlobTest extends AbstractBlobTest {
         //force info call
         FedoraBlob new_blob = getTestBlob();
         new_blob.getSize();
-        Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-repository-name", "test-repository"));
+        Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-repository-name", TestConfig.getProperty("store.repository-name")));
         Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-stream-id", "fedora-test-blob-id"));
         blob.delete();
     }

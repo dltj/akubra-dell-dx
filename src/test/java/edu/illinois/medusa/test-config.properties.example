@@ -1,9 +1,12 @@
-#auth configuration
-auth.user = test-user
-auth.password = yourpassword
-auth.realm = medusa.grainger.illinois.edu/test
+#copy to test-config.properties.example and edit to your specifications in order to run the tests
+store.repository-name = test-repository
 
-#connection configuration
-conn.url = libstor.grainger.illinois.edu
-conn.caringo_domain = medusa.grainger.illinois.edu
-conn.caringo_bucket = test
+connection.host = libstor.grainger.illinois.edu
+connection.domain = medusa.grainger.illinois.edu
+connection.bucket = test
+
+#auth configuration
+authentication.user = test-user
+authentication.password = yourpassword
+authentication.realm = medusa.grainger.illinois.edu/test
+
