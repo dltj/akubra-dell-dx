@@ -4,6 +4,7 @@ import javax.transaction.Transaction;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Blob Store that can use Akubra hints to maintain Caringo headers
@@ -20,13 +21,12 @@ public class HintedBlobStore extends CaringoBlobStore {
 
     protected HintedBlobStore(URI storeId, String configFilePath) {
         super(storeId, configFilePath);
-        this.hints = new CaringoHints();
     }
 
     /**
      * Open a connection to Caringo storage
      *
-     * @param tx For this BlobStore this must be null - transactions are unsupported.
+     * @param tx    For this BlobStore this must be null - transactions are unsupported.
      * @param hints Any hints to initialize this connection
      * @return new connection
      * @throws IOException If there is any problem opening the connection or tx is not null.
@@ -46,5 +46,16 @@ public class HintedBlobStore extends CaringoBlobStore {
      */
     public HintedBlobStoreConnection openConnection() throws IOException {
         return this.openConnection(null, null);
+    }
+
+    //currently this doesn't do anything, but I'm putting it here in preparation for being able to convert
+    //header.x = y|z properties into headers.
+    //This would involve:
+    //Extract those keys
+    //Parse keys and values
+    //Add to hints
+    protected void configFromProperties(Properties config) {
+        this.hints = new CaringoHints();
+        super.configFromProperties(config);
     }
 }
