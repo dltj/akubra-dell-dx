@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -68,10 +69,43 @@ public class HintedBlobTest extends AbstractBlobTest {
             //force an info call
             new_blob.getSize();
             Assert.assertTrue(new_blob.response().scspResponse().getResponseHeaders().containsValue("x-fedora-meta-test-key", "test-value"));
-        }  finally {
+        } finally {
             deleteBlob(new_blob);
             deleteBlob(source_blob);
         }
     }
 
+    @Test
+    public void testConfigHeaderParsing() throws Exception {
+        ArrayList<String> values = store.parseConfigHeaders("");
+        Assert.assertEquals(values.size(), 0);
+        values = store.parseConfigHeaders("joe");
+        Assert.assertEquals(values.size(), 1);
+        Assert.assertEquals(values.get(0), "joe");
+        values = store.parseConfigHeaders("joe|bob||fred|pete");
+        Assert.assertEquals(values.size(), 3);
+        Assert.assertEquals(values.get(0), "joe");
+        Assert.assertEquals(values.get(1), "bob|fred");
+        Assert.assertEquals(values.get(2), "pete");
+    }
+
+    @Test
+    public void testStoreConfigHeader() throws Exception {
+        InputStream input = null;
+        try {
+            openConnection();
+            HintedBlob blob = getTestBlob();
+            writeBlob(getTestBytes(), blob);
+            HintedBlob readBlob = getTestBlob();
+            input = readBlob.openInputStream();
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsName("x-config-meta-header"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header", "test-value"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-1"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-2"));
+        } finally {
+            if (input != null)
+                input.close();
+            deleteTestBlob();
+        }
+    }
 }
