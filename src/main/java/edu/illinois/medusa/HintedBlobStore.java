@@ -72,31 +72,25 @@ public class HintedBlobStore extends CaringoBlobStore {
         }
     }
 
-    //configString will be an arbitrary string
-    //It should be parsed by separating it info fields on the | character. The pipe character may be doubled
-    //to quote a pipe character in a value.
-    //The return is an array that contain a list of field values.
     protected ArrayList<String> parseConfigHeaders(String configString) {
         ArrayList<String> values = new ArrayList<String>();
+        boolean onBackslash = false;
         String accumulator = new String();
-        StringTokenizer tokenizer = new StringTokenizer(configString, "|", true);
-        boolean onPipe = false;
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            if (token.equals("|")) {
-                if (onPipe) {
-                    accumulator = accumulator + "|";
-                    onPipe = false;
-                } else {
-                    onPipe = true;
-                }
+        String rest = new String(configString);
+        while (rest.length() > 0) {
+            Character c = rest.charAt(0);
+            rest = rest.substring(1);
+            if (onBackslash) {
+                accumulator = accumulator + c;
+                onBackslash = false;
             } else {
-                if (onPipe) {
+                if (c == '\\') {
+                    onBackslash = true;
+                } else if (c == '|') {
                     values.add(accumulator);
-                    onPipe = false;
-                    accumulator = token;
+                    accumulator = new String();
                 } else {
-                    accumulator += token;
+                    accumulator = accumulator + c;
                 }
             }
         }

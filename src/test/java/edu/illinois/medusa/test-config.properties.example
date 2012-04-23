@@ -13,4 +13,5 @@ authentication.realm = medusa.grainger.illinois.edu/test
 #following used to test adding headers from config - note that they do need to be legal headers for the
 #storage system
 header.x-config-meta-header = test-value
-header.x-config-meta-header-2 = test-value-1|test-value-2
+header.x-config-meta-header-2 = test-value-\\|-1|test-value-\\\\-2
+

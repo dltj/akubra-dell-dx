@@ -82,11 +82,11 @@ public class HintedBlobTest extends AbstractBlobTest {
         values = store.parseConfigHeaders("joe");
         Assert.assertEquals(values.size(), 1);
         Assert.assertEquals(values.get(0), "joe");
-        values = store.parseConfigHeaders("joe|bob||fred|pete");
+        values = store.parseConfigHeaders("joe|bob\\|fred|pe\\\\te");
         Assert.assertEquals(values.size(), 3);
         Assert.assertEquals(values.get(0), "joe");
         Assert.assertEquals(values.get(1), "bob|fred");
-        Assert.assertEquals(values.get(2), "pete");
+        Assert.assertEquals(values.get(2), "pe\\te");
     }
 
     @Test
@@ -100,8 +100,8 @@ public class HintedBlobTest extends AbstractBlobTest {
             input = readBlob.openInputStream();
             Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsName("x-config-meta-header"));
             Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header", "test-value"));
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-1"));
-            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-2"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-|-1"));
+            Assert.assertTrue(readBlob.response().scspResponse().getResponseHeaders().containsValue("x-config-meta-header-2", "test-value-\\-2"));
         } finally {
             if (input != null)
                 input.close();
