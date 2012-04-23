@@ -3,11 +3,13 @@
 # pointing to this config file.
 
 # BlobStore configuration - required
+# store.id - an arbitrary name for the store required by the Akubra framework
 # store.repository-name - applies only to the Fedora adapter. Added as
 # 			metadata to the stored object in the 
 #			x-fedora-meta-repository-name header to allow 
 #			for enumeration. It should be unique to the storage 
 #			system.
+store.id = caringo
 store.repository-name = development-test-repo
 
 # Storage connection configuration - required except as noted
@@ -18,23 +20,23 @@ store.repository-name = development-test-repo
 #			       be created before using the adapter.
 # connection.bucket - the bucket where your objects will reside. You must
 # 		    create this before using the adapter.
-connection.host = my.storage.host
-connection.domain = my.domain.name.on.storage.host
-connection.bucket = bucket-name
+connection.host = libstor.grainger.illinois.edu
+connection.domain = medusa.grainger.illinois.edu
+connection.bucket = open
 
 # Authentication configuration - optional. Use if your bucket is
 # protected by authentication. The supplied user must be able to
 # create and modify objects in the bucket using the supplied security
-# realm. This will only be used if all values are set.
+# realm.
 # authentication.user - a user with the ability to create and perform all
 # 		      operations on objects in connnection.bucket via
 #		      the security realm authentication.realm
 # authentication.password - the password for authentication.user
 # authentication.realm - the authentication realm application to
 # 		       connection.bucket
-#authentication.user = test-user
-#authentication.password = test-user-password
-#authentication.realm = authentication-realm
+authentication.user = test-user
+authentication.password = test-user-password
+authentication.realm = authentication-realm
 
 # Content Router configuration - optional, applicable to FedoraBlobStore only.
 # You need this if you want to be able to list all blob ids, e.g. for 
@@ -58,22 +60,12 @@ connection.bucket = bucket-name
 # content-router.object-channel and content-router.datastream-channel 
 # separately or use two different properties files and construct the
 # BlobStores appropriately in akubra-llstore.xml.
-# Unless enough of these are set the adapter will just assume that you
-# don't want to use this facility.
 
-content-router.host = content-router-host-or-ip
-content-router.port = content-router-port
+content-router.host = 172.22.70.6
+content-router.port = 8080
 #Use if you want the two blob stores to share a content router channel
-content-router.channel = channel-enumerating-fedora-information
+content-router.channel = development-test-repo
 #Use if you want to use separate content router channels - these
 #will supersede content-router.channel if set.
 #content-router.object-channel = development-test-repo-objects
 #content-router.datastream-channel = development-test-repo-datastreams
-
-#If using a HintedBlobStore (e.g. any of the FedoraBlobStores) you can specify arbitrary headers
-#to be stored with every object. Add a property of the form:
-#header.header-name = value-1|value-2|value-3
-#This will send the header "header-name" with each of the values. To have "|" in a value double it, e.g.
-#header.header-name x|y||z
-#will send the two values "x" and "y|z".
-#Note that header-name will only be stored by the if it is a legal header name.
