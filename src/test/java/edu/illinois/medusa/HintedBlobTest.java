@@ -87,6 +87,9 @@ public class HintedBlobTest extends AbstractBlobTest {
         Assert.assertEquals(values.get(0), "joe");
         Assert.assertEquals(values.get(1), "bob|fred");
         Assert.assertEquals(values.get(2), "pe\\te");
+        values = store.parseConfigHeaders("|");
+        Assert.assertEquals(values.size(), 1);
+        Assert.assertEquals(values.get(0), "");
     }
 
     @Test
