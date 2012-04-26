@@ -20,6 +20,7 @@ public class HintedBlobStore extends CaringoBlobStore {
 
     protected HintedBlobStore(URI storeId, String configFilePath) {
         super(storeId, configFilePath);
+        this.addCreatorHeaders();
     }
 
     /**
@@ -72,6 +73,19 @@ public class HintedBlobStore extends CaringoBlobStore {
         }
     }
 
+    //Add some headers related to this plugin as requested by Dell. I don't think there is any problem
+    //adding them from a raw Caringo perspective - at worst perhaps they'll be ignored.
+    //Note that there is an analogous method in FedoraBlobStore for adding originator information -
+    //I don't want to make the assumption that Fedora is the client until that point.
+    protected void addCreatorHeaders() {
+        this.hints.addHint(":x-Dell-creator-meta", AkubraPlugin.dellCreator);
+        this.hints.addHint(":x-Dell-creator-version-meta", AkubraPlugin.dellCreatorVersion());
+    }
+
+    //This is neither pretty nor efficient, but it will only happen once, at start up, so as long as it's
+    //correct it should be fine.
+    //configString is parsed as a | separated string, where \ functions to quote the following character.
+    //A trailing | does not contribute anything - a leading | contributes an empty value.
     protected ArrayList<String> parseConfigHeaders(String configString) {
         ArrayList<String> values = new ArrayList<String>();
         boolean onBackslash = false;

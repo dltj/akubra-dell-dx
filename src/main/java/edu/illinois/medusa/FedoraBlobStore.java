@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import javax.transaction.Transaction;
+import java.lang.reflect.Field;
 
 /**
  * Extension of HintedBlobStore with functionality appropriate to Fedora. Creates connections of appropriate class.
@@ -24,6 +25,7 @@ public class FedoraBlobStore extends HintedBlobStore {
     protected FedoraBlobStore(URI storeID, String configFilePath) {
         super(storeID, configFilePath);
         this.hints.addHint("fedora:repository-name", repositoryName);
+        this.addOriginatorHeaders();
     }
 
     protected void configFromProperties(Properties config) {
@@ -53,6 +55,19 @@ public class FedoraBlobStore extends HintedBlobStore {
     //override in subclasses to have more control over channel
     protected String configContentRouterChannel(Properties config) {
         return config.getProperty("content-router.channel");
+    }
+
+    protected void addOriginatorHeaders() {
+        this.hints.addHint(":x-Dell-originator-meta", "Fedora");
+        //attempt to extract fedora version and convert to Dell's desired format
+        try {
+            Class fedoraServer = Class.forName("org.fcrepo.server.Server");
+            Field versionField = fedoraServer.getField("VERSION");
+            String versionString = (String) versionField.get(null);
+            this.hints.addHint(":x-Dell-originator-version-meta", versionString.replace('.', ';'));
+        } catch (Exception e) {
+            //for now we just pass here - do nothing if we can't detect the fedora version
+        }
     }
 
     /**
