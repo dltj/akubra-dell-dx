@@ -15,6 +15,13 @@ import java.net.URI;
 
 public class FedoraIdMapper implements IdMapper {
 
+    /**
+     * Return the external id corresponding to the provided internal id
+     *
+     * @param internalId Internal Id
+     * @return External Id
+     * @throws NullPointerException If internal id is null
+     */
     public URI getExternalId(URI internalId) throws NullPointerException {
         if (internalId == null)
             throw new NullPointerException();
@@ -22,6 +29,13 @@ public class FedoraIdMapper implements IdMapper {
             return unquoteId(internalId);
     }
 
+    /**
+     * Return the internal id corresponding to the provided external id
+     *
+     * @param externalId External Id
+     * @return Internal Id
+     * @throws NullPointerException If external id is null
+     */
     public URI getInternalId(URI externalId) throws NullPointerException {
         if (externalId == null)
             throw new NullPointerException();
@@ -36,10 +50,22 @@ public class FedoraIdMapper implements IdMapper {
             return externalPrefix;
     }
 
+    /**
+     * Quote the provided id. Trivial for this IdMapper.
+     *
+     * @param id Id to quote
+     * @return Quoted Id
+     */
     private URI quoteId(URI id) {
         return id;
     }
 
+    /**
+     * Unquote the provided id. Trivial for this IdMapper.
+     *
+     * @param id Id to unquote
+     * @return Unquoted Id
+     */
     private URI unquoteId(URI id) {
         return id;
     }
