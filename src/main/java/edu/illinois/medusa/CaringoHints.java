@@ -166,6 +166,12 @@ public class CaringoHints extends HashMap<String, String> {
         }
     }
 
+    /**
+     * URL encode a String
+     *
+     * @param value String to be encoded
+     * @return Encoded string
+     */
     protected String urlEncode(String value) {
         try {
             return URLEncoder.encode(value, "UTF-8");
