@@ -18,6 +18,7 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Construct from an ScspResponse
+     *
      * @param response The Scsp Response to be wrapped
      */
     protected CaringoAbstractResponse(ScspResponse response) {
@@ -26,6 +27,7 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Get the HTTP status of the response
+     *
      * @return The integer status code of the Caringo response
      */
     public int status() {
@@ -34,6 +36,7 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Get whether the response returned ok (200)
+     *
      * @return Whether the status was ok (200).
      */
     public boolean ok() {
@@ -42,6 +45,7 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Get whether the response returned not found (404)
+     *
      * @return Whether the status was not found (404)
      */
     public boolean notFound() {
@@ -50,18 +54,25 @@ public abstract class CaringoAbstractResponse {
 
     /**
      * Get whether the response returned created (201)
+     *
      * @return Whether the status was created (201)
      */
     public boolean created() {
         return this.status() == 201;
     }
 
+    /**
+     * Get whether a 500 error was returned from the server. This is used to facilitate certain retry strategies.
+     *
+     * @return Whether the status showed an unknown server error (500)
+     */
     public boolean serverError() {
         return this.status() == 500;
     }
 
     /**
      * Get the wrapped response
+     *
      * @return The wrapped ScspResponse
      */
     public ScspResponse scspResponse() {
