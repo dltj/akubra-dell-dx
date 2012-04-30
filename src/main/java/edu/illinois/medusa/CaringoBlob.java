@@ -95,6 +95,13 @@ public class CaringoBlob extends AbstractBlob {
         return this.info(5);
     }
 
+    /**
+     * Do an info request via the owning connection, with retries. Allows determination of the existence and size of the blob.
+     *
+     * @param retries Number of retries remaining.
+     * @return Response from info request
+     * @throws IOException If there is an error conducting the info request
+     */
     private CaringoInfoResponse info(int retries) throws IOException {
         CaringoInfoResponse infoResponse = this.owner.info(this.id);
         if (!infoResponse.serverError()) {
@@ -120,8 +127,10 @@ public class CaringoBlob extends AbstractBlob {
     }
 
     /**
-     * Open an input stream on an existing blob from storage. This stream is managed by the blob's stream manager.
+     * Open an input stream on an existing blob from storage with retry facility.
+     * This stream is managed by the blob's stream manager.
      *
+     * @param retries Number of retries remaining
      * @return InputStream on the blob's contents
      * @throws MissingBlobException If the blob is not found
      * @throws IOException          If there is an error interacting with storage or an unexpected return value.
@@ -160,6 +169,12 @@ public class CaringoBlob extends AbstractBlob {
         throw new IOException(outOfRetriesErrorMessage(readResponse));
     }
 
+    /**
+     * Log a message to stderr that there was an error performing a request and wait for a bit before
+     * retrying.
+     *
+     * @param retries - Number of retries left
+     */
     private void logRetryAndSleep(int retries) {
         System.err.println("Error getting: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
         try {
@@ -169,6 +184,13 @@ public class CaringoBlob extends AbstractBlob {
         }
     }
 
+    /**
+     * Produce a message with information about a failure (presumably after several retries resulting in 500 errors)
+     * Include the response code, id of the blob, and response headers.
+     *
+     * @param response - the wrapped HTTP response
+     * @return - an error message
+     */
     private String outOfRetriesErrorMessage(CaringoAbstractResponse response) {
         String errorString = "RESPONSE_CODE: " + response.response.getHttpStatusCode();
         errorString += "\nID: " + this.getId().toString();
