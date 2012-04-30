@@ -14,7 +14,7 @@ public class FedoraBlob extends HintedBlob {
      * Construct a new FedoraBlob.
      *
      * @param owner Owning connection
-     * @param id ID of blob
+     * @param id    ID of blob
      * @param hints Any existing hints to use
      */
     protected FedoraBlob(FedoraBlobStoreConnection owner, URI id, CaringoHints hints) {
@@ -25,6 +25,11 @@ public class FedoraBlob extends HintedBlob {
         this.hintAdders.add(new HintMD5Adder());
     }
 
+    /**
+     * Action before writing to storage. We add a header here.
+     *
+     * @param content The OutputStream with the bytes to be written
+     */
     protected void preprocessWrite(CaringoOutputStream content) {
         super.preprocessWrite(content);
         this.addHint(":Cache-Control", "no-cache");
