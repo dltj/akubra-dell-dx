@@ -18,6 +18,12 @@ public class HintedBlobStore extends CaringoBlobStore {
      */
     protected CaringoHints hints;
 
+    /**
+     * Construct a new HintedBlobStore
+     *
+     * @param storeId        Arbitrary name for the blob store
+     * @param configFilePath Path to properties file with configuration information for the blob store
+     */
     protected HintedBlobStore(URI storeId, String configFilePath) {
         super(storeId, configFilePath);
         this.addCreatorHeaders();
@@ -48,18 +54,27 @@ public class HintedBlobStore extends CaringoBlobStore {
         return this.openConnection(null, null);
     }
 
-    //currently this doesn't do anything, but I'm putting it here in preparation for being able to convert
-    //header.x = y|z properties into headers.
-    //This would involve:
-    //Extract those keys (header.<header-name>)
-    //Parse keys and values
-    //Add to hints
+    /**
+     * Configuration from configuration file.
+     *
+     * @param config Properties used to configure the BlobStore
+     */
     protected void configFromProperties(Properties config) {
         this.hints = new CaringoHints();
         super.configFromProperties(config);
         this.addConfigHeaders(config);
     }
 
+    /**
+     * Add headers/hints based on configuration file.
+     * Each property of the form header.x = y (where "header" is literal) gives rise to a header with
+     * name x and value y. Multiple values can be specified as y|z|w, and the \ character serves to quote the
+     * following character. Note that each \ may need another \ to quote itself to satisfy the properties file
+     * syntax. E.g. abc\\\\|de\\|fg in the properties file represents the string abc\\|de\|fg passed to this plugin,
+     * which parses left to right and sees the two values abc\ and de|fg.
+     *
+     * @param config Properties used to configure BlobStore
+     */
     protected void addConfigHeaders(Properties config) {
         Set<String> keys = config.stringPropertyNames();
         for (String key : keys) {
@@ -73,10 +88,9 @@ public class HintedBlobStore extends CaringoBlobStore {
         }
     }
 
-    //Add some headers related to this plugin as requested by Dell. I don't think there is any problem
-    //adding them from a raw Caringo perspective - at worst perhaps they'll be ignored.
-    //Note that there is an analogous method in FedoraBlobStore for adding originator information -
-    //I don't want to make the assumption that Fedora is the client until that point.
+    /**
+     * Add some headers identifying this akubra plugin as the creator of objects in storage. Requested by Dell.
+     */
     protected void addCreatorHeaders() {
         this.hints.addHint(":x-Dell-creator-meta", AkubraPlugin.dellCreator);
         this.hints.addHint(":x-Dell-creator-version-meta", AkubraPlugin.dellCreatorVersion());
@@ -86,6 +100,13 @@ public class HintedBlobStore extends CaringoBlobStore {
     //correct it should be fine.
     //configString is parsed as a | separated string, where \ functions to quote the following character.
     //A trailing | does not contribute anything - a leading | contributes an empty value.
+
+    /**
+     * Parse a value passed through the properties file into a set of values.
+     *
+     * @param configString Raw value to be parsed
+     * @return Array of parsed values
+     */
     protected ArrayList<String> parseConfigHeaders(String configString) {
         ArrayList<String> values = new ArrayList<String>();
         boolean onBackslash = false;
