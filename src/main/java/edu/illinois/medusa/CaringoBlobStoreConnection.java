@@ -76,9 +76,11 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
     public CaringoInfoResponse info(URI id) throws IOException {
         try {
             ensureOpen();
+            System.err.println("Infoing: " + id.toString());
             ScspResponse response = this.getCaringoClient().info("", objectPath(id), new ScspQueryArgs(), headersWithAuth());
             return new CaringoInfoResponse(response);
         } catch (ScspExecutionException e) {
+            System.err.println("Scsp Exception for: " + id.toString());
             throw new IOException();
         }
     }
