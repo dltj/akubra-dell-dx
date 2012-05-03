@@ -108,7 +108,7 @@ public class CaringoBlob extends AbstractBlob {
             return infoResponse;
         }
         if (infoResponse.serverError() && retries > 0) {
-            logRetryAndSleep(retries);
+            logRetryAndSleep(retries, "infoing");
             return info(retries - 1);
         }
         //If we get here we've failed and are out of retries
@@ -162,7 +162,7 @@ public class CaringoBlob extends AbstractBlob {
             throw new MissingBlobException(this.id);
         }
         if (readResponse.serverError() && retries > 0) {
-            logRetryAndSleep(retries);
+            logRetryAndSleep(retries, "reading");
             return openInputStream(retries - 1);
         }
         readResponse.cleanupFile();
@@ -175,8 +175,9 @@ public class CaringoBlob extends AbstractBlob {
      *
      * @param retries - Number of retries left
      */
-    private void logRetryAndSleep(int retries) {
+    private void logRetryAndSleep(int retries, String action) {
         System.err.println("Error getting: " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
+        System.err.println("Error " + action + ": " + this.getId().toString() + " - " + (retries - 1) + " retries left.");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -230,10 +231,27 @@ public class CaringoBlob extends AbstractBlob {
      * @throws IOException If there is an error interacting with storage or an unexpected response code.
      */
     public void delete() throws IOException {
+        delete(5);
+    }
+
+
+    public void delete(int retries) throws IOException {
         CaringoDeleteResponse deleteResponse = this.owner.delete(this.id);
         response = deleteResponse;
-        if (!deleteResponse.ok() && !deleteResponse.notFound())
+        //By definition deleting a blob that doesn't exist is a success
+        if (deleteResponse.ok() || deleteResponse.notFound())
+            return;
+        if (deleteResponse.serverError()) {
+            if (retries > 0) {
+                logRetryAndSleep(retries, "deleting");
+                delete(retries - 1);
+                return;
+            } else {
+                throw new IOException(outOfRetriesErrorMessage(deleteResponse));
+            }
+        } else {
             throw new IOException();
+        }
     }
 
     /**
