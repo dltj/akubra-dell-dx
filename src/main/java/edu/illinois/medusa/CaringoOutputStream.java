@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 
 /**
  * OutputStream for writing to Caringo storage
- *
+ * <p/>
  * An Akubra Blob can get one of these. It creates a temporary file to which the bytes are written. When this
  * stream is closed it writes its information to Caringo.
  *
@@ -33,9 +33,9 @@ public class CaringoOutputStream extends FileOutputStream {
      * Construct a new CaringoOutputStream
      *
      * @param estimated_length Estimated length of this output stream - ignored
-     * @param overwrite Whether or not this is allowed to overwrite an existing object
-     * @param blob Blob that requested this output stream
-     * @param tempFile Temporary file that will back this output stream
+     * @param overwrite        Whether or not this is allowed to overwrite an existing object
+     * @param blob             Blob that requested this output stream
+     * @param tempFile         Temporary file that will back this output stream
      * @throws FileNotFoundException If a FileStream can't be opened on tempFile
      */
     protected CaringoOutputStream(long estimated_length, boolean overwrite,
@@ -59,7 +59,8 @@ public class CaringoOutputStream extends FileOutputStream {
             MessageDigest md = MessageDigest.getInstance("MD5");
             DigestInputStream digestStream = new DigestInputStream(fileStream, md);
             byte[] bytes = new byte[4096];
-            while (digestStream.read(bytes) != -1) {}
+            while (digestStream.read(bytes) != -1) {
+            }
             return digestStream.getMessageDigest().digest();
         } catch (Exception e) {
             throw new RuntimeException("Problem computing MD5 sum for blob");
@@ -75,9 +76,14 @@ public class CaringoOutputStream extends FileOutputStream {
         //try to write the contentStream
         try {
             blob.write(this, this.overwrite);
+        } catch (IOException e) {
+            System.err.println("Error writing blob: " + this.blob.getId().toString());
+            throw e;
         } finally {
             try {
                 super.close();
+            } catch (IOException e) {
+                System.err.println("Error closing file for blob: " + this.blob.getId().toString());
             } finally {
                 file.delete();
             }
