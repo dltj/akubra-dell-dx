@@ -202,6 +202,7 @@ public class CaringoBlobStore extends AbstractBlobStore {
      * @throws IOException
      */
     protected void initializeClients() throws IOException {
+        clientPool = new ScspClient[CLIENT_COUNT];
         for (int i = 0; i < CLIENT_COUNT; i++) {
             String[] hosts = new String[1];
             hosts[0] = connectionConfig.serverURL;
