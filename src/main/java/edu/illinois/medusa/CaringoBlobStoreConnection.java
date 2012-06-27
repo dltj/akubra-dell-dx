@@ -36,7 +36,6 @@ public class CaringoBlobStoreConnection extends AbstractBlobStoreConnection {
         super(owner, streamManager);
         this.owner = owner;
         this.caringoClient = owner.getCaringoClient();
-        this.caringoClient.start();
     }
 
     /**

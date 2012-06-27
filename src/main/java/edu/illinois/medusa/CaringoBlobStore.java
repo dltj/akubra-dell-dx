@@ -4,6 +4,7 @@ import com.caringo.client.ScspClient;
 import org.akubraproject.impl.AbstractBlobStore;
 import org.akubraproject.impl.StreamManager;
 
+import javax.management.RuntimeErrorException;
 import javax.transaction.Transaction;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,6 +33,18 @@ public class CaringoBlobStore extends AbstractBlobStore {
      * Stream manager for the BlobStore
      */
     protected StreamManager streamManager;
+    /**
+     * Pool of caringo clients
+     */
+    protected ScspClient[] clientPool;
+    /**
+     * Number of independent clients
+     */
+    protected static int CLIENT_COUNT = 5;
+    /**
+     * which client to assign next
+     */
+    protected int currentClientIndex = 0;
 
     /**
      * The bucket used on the storage server.
@@ -61,6 +74,11 @@ public class CaringoBlobStore extends AbstractBlobStore {
         super(storeId);
         this.configStore(configFilePath);
         this.streamManager = new StreamManager();
+        try {
+            this.initializeClients();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to initialize clients");
+        }
     }
 
     /**
@@ -171,17 +189,30 @@ public class CaringoBlobStore extends AbstractBlobStore {
      * Get a new SDK ScspClient to Caringo storage.
      *
      * @return A new SDK client to Caringo storage
-     * @throws IOException If there is an error getting a client
      */
-    public ScspClient getCaringoClient() throws IOException {
-        String[] hosts = new String[1];
-        hosts[0] = connectionConfig.serverURL;
-        ScspClient client = new ScspClient(hosts, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
-                connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout,
-                connectionConfig.locatorRetryTimeout);
-        if (connectionConfig.caringoDomain != null)
-            client.setHostHeaderValue(connectionConfig.caringoDomain);
+    public ScspClient getCaringoClient() {
+        ScspClient client = clientPool[currentClientIndex];
+        currentClientIndex++;
+        currentClientIndex %= CLIENT_COUNT;
         return client;
+    }
+
+    /**
+     * Create and start an initial pool of clients
+     * @throws IOException
+     */
+    protected void initializeClients() throws IOException {
+        for (int i = 0; i < CLIENT_COUNT; i++) {
+            String[] hosts = new String[1];
+            hosts[0] = connectionConfig.serverURL;
+            ScspClient client = new ScspClient(hosts, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
+                    connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout,
+                    connectionConfig.locatorRetryTimeout);
+            if (connectionConfig.caringoDomain != null)
+                client.setHostHeaderValue(connectionConfig.caringoDomain);
+            client.start();
+            clientPool[i] = client;
+        }
     }
 
     /**
