@@ -30,8 +30,6 @@ public class HintedBlobStore extends CaringoBlobStore {
      */
     protected HintedBlobStore(URI storeId, String configFilePath) {
         super(storeId, configFilePath);
-        this.initializeHintCopier();
-        this.addCreatorHeaders();
     }
 
     protected void initializeHintCopier() {
@@ -73,6 +71,8 @@ public class HintedBlobStore extends CaringoBlobStore {
     protected void configFromProperties(Properties config) {
         this.hints = new CaringoHints();
         super.configFromProperties(config);
+        this.initializeHintCopier();
+        this.addCreatorHeaders();
         this.addConfigHeaders(config);
     }
 
@@ -83,6 +83,9 @@ public class HintedBlobStore extends CaringoBlobStore {
      * following character. Note that each \ may need another \ to quote itself to satisfy the properties file
      * syntax. E.g. abc\\\\|de\\|fg in the properties file represents the string abc\\|de\|fg passed to this plugin,
      * which parses left to right and sees the two values abc\ and de|fg.
+     *
+     * These headers/hints will automatically be ignored when copying hints unless something else modifies the HintCopier
+     * to change that.
      *
      * @param config Properties used to configure BlobStore
      */
@@ -95,6 +98,7 @@ public class HintedBlobStore extends CaringoBlobStore {
                 for (String value : values) {
                     this.hints.addHint(":" + headerName, value);
                 }
+                this.hintCopier.addRule(new HintCopyRegexpRule(key, false, "^" + headerName + "$"));
             }
         }
     }
