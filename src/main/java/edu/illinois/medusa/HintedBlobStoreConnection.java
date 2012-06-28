@@ -42,4 +42,8 @@ public class HintedBlobStoreConnection extends CaringoBlobStoreConnection {
         return new HintedBlob(this, blobId, this.hints.copy_and_merge_hints(hints));
     }
 
+    protected HintCopier getHintCopier() {
+        return this.owner.getHintCopier();
+    }
+
 }

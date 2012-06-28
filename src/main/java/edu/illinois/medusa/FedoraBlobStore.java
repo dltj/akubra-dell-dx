@@ -40,6 +40,12 @@ public class FedoraBlobStore extends HintedBlobStore {
         this.addOriginatorHeaders();
     }
 
+    protected void initializeHintCopier() {
+        super.initializeHintCopier();
+        this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-stream-id", false, "^x-fedora-meta-stream-id$"));
+        this.hintCopier.addRuleFront(new HintCopyRegexpRule("reject-repository-name", false, "^x-fedora-meta-repository-name$"));
+    }
+
     /**
      * Configure FedoraBlobStore from configuration Properties.
      *

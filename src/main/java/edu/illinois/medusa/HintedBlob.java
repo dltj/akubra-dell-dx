@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Blob that can use Akubra hints to make/copy Caringo metadata headers
- *
+ * <p/>
  * This class doesn't add any headers, but will copy x-*-meta-* headers and lifepoint headers.
  *
  * @author Howard Ding - hding2@illinois.edu
@@ -25,10 +25,6 @@ public class HintedBlob extends CaringoBlob {
      */
     protected HintedBlobStoreConnection owner;
     /**
-     * In charge of how to copy hints from this blob to another
-     */
-    protected HintCopier hintCopier;
-    /**
      * List of hints to add to this kind of blob before storing - subclasses can add to this to configure
      */
     protected List<HintAdder> hintAdders;
@@ -41,18 +37,16 @@ public class HintedBlob extends CaringoBlob {
      * Construct a new HintedBlob
      *
      * @param owner Owning connection for this blob
-     * @param id ID of the blob
+     * @param id    ID of the blob
      * @param hints Any initializing hints for this blob
      */
     protected HintedBlob(HintedBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id);
         this.hints = hints;
         this.owner = owner;
-        this.hintCopier = new HintCopier();
-        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-meta", true, "^x-.+-meta-.+$"));
-        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-lifepoint", true, "^Lifepoint$"));
         this.hintAdders = new ArrayList<HintAdder>();
     }
+
 
     /**
      * Copy appropriate headers from this blob to another. Note that we need to have done an info or read request
@@ -61,16 +55,17 @@ public class HintedBlob extends CaringoBlob {
      * @param otherBlob Blob to which to copy headers
      */
     protected void copyHeaders(HintedBlob otherBlob) {
-        this.hintCopier.copyHeaders(this, otherBlob);
+        this.getHintCopier().copyHeaders(this, otherBlob);
     }
 
     /**
      * Return md5 checksum for the content of this blob. Only applies before a write operation, i.e. a client
      * has obtained an output stream on the blob, written to it, and closed it.
+     *
      * @return MD% checksum as byte array - note that this is how the Caringo storage wants it
      */
     protected byte[] md5checksum() {
-     try {
+        try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             return content.md5Sum();
         } catch (Exception e) {
@@ -81,7 +76,7 @@ public class HintedBlob extends CaringoBlob {
     /**
      * Add a hint for this blob
      *
-     * @param key Key for hint
+     * @param key   Key for hint
      * @param value Value of hint
      */
     public void addHint(String key, String value) {
@@ -92,7 +87,7 @@ public class HintedBlob extends CaringoBlob {
      * Send a write request to the Caringo server. Used after closing an output stream on this blob.
      * Overriding here is necessary to incorporate the hints into headers.
      *
-     * @param content OutputStream to be written
+     * @param content   OutputStream to be written
      * @param overwrite Whether or not it is permissible to overwrite this blob if it is already in storage
      * @return Wrapped response from server
      * @throws IOException If there is a problem writing to Caringo storage
@@ -104,6 +99,7 @@ public class HintedBlob extends CaringoBlob {
     /**
      * Action to take before writing bytes to Caringo storage
      * In this case set the content stream so it will be available elsewhere and add Hints as appropriate.
+     *
      * @param content The OutputStream with the bytes to be written
      */
     protected void preprocessWrite(CaringoOutputStream content) {
@@ -129,6 +125,10 @@ public class HintedBlob extends CaringoBlob {
      */
     protected void preprocessMoveTo(CaringoBlob newBlob) {
         this.copyHeaders((HintedBlob) newBlob);
+    }
+
+    protected HintCopier getHintCopier() {
+        return this.owner.getHintCopier();
     }
 
 }

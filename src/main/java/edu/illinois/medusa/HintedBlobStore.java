@@ -17,6 +17,10 @@ public class HintedBlobStore extends CaringoBlobStore {
      * Hints to be used over the whole store
      */
     protected CaringoHints hints;
+    /**
+     * HintCopier that will control copying of blobs from this store
+     */
+    protected HintCopier hintCopier;
 
     /**
      * Construct a new HintedBlobStore
@@ -26,7 +30,14 @@ public class HintedBlobStore extends CaringoBlobStore {
      */
     protected HintedBlobStore(URI storeId, String configFilePath) {
         super(storeId, configFilePath);
+        this.initializeHintCopier();
         this.addCreatorHeaders();
+    }
+
+    protected void initializeHintCopier() {
+        this.hintCopier = new HintCopier();
+        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-meta", true, "^x-.+-meta-.+$"));
+        this.hintCopier.addRule(new HintCopyRegexpRule("caringo-lifepoint", true, "^Lifepoint$"));
     }
 
     /**
@@ -133,5 +144,10 @@ public class HintedBlobStore extends CaringoBlobStore {
             values.add(accumulator);
         return values;
     }
+
+    protected HintCopier getHintCopier() {
+        return this.hintCopier;
+    }
+
 }
 

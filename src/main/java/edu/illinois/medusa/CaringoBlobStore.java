@@ -228,4 +228,9 @@ public class CaringoBlobStore extends AbstractBlobStore {
     protected Iterator<URI> listBlobIds(String filterPrefix) throws IOException {
         throw new UnsupportedOperationException("blob-id listing not supported");
     }
+
+    /* this is only supported in HintedBlobStore and below */
+    protected HintCopier getHintCopier() {
+        return null;
+    }
 }
