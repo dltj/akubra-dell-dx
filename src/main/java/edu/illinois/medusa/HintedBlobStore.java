@@ -98,7 +98,7 @@ public class HintedBlobStore extends CaringoBlobStore {
                 for (String value : values) {
                     this.hints.addHint(":" + headerName, value);
                 }
-                this.hintCopier.addRule(new HintCopyRegexpRule(key, false, "^" + java.util.regex.Pattern.quote(headerName) + "$"));
+                this.hintCopier.addRuleFront(new HintCopyRegexpRule(key, false, "^" + java.util.regex.Pattern.quote(headerName) + "$"));
             }
         }
     }
