@@ -1,6 +1,9 @@
 package edu.illinois.medusa;
 
 import com.caringo.client.ScspClient;
+import com.caringo.client.locate.Locator;
+import com.caringo.client.locate.RoundRobinDnsLocator;
+import com.caringo.client.locate.StaticLocator;
 import org.akubraproject.impl.AbstractBlobStore;
 import org.akubraproject.impl.StreamManager;
 
@@ -199,20 +202,27 @@ public class CaringoBlobStore extends AbstractBlobStore {
 
     /**
      * Create and start an initial pool of clients
+     *
      * @throws IOException
      */
     protected void initializeClients() throws IOException {
         clientPool = new ScspClient[CLIENT_COUNT];
-        String[] hosts = connectionConfig.serverURL.replaceAll("\\s", "").split(",");
+        Locator locator = initializeLocator();
         for (int i = 0; i < CLIENT_COUNT; i++) {
-            ScspClient client = new ScspClient(hosts, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
-                    connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout,
-                    connectionConfig.locatorRetryTimeout);
+            ScspClient client = new ScspClient(locator, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
+                    connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout);
             if (connectionConfig.caringoDomain != null)
                 client.setHostHeaderValue(connectionConfig.caringoDomain);
             client.start();
             clientPool[i] = client;
         }
+    }
+
+    protected Locator initializeLocator() {
+        String[] hosts = connectionConfig.serverURL.replaceAll("\\s", "").split(",");
+        RoundRobinDnsLocator locator = new RoundRobinDnsLocator(hosts[0], connectionConfig.port);
+        locator.start();
+        return locator;
     }
 
     /**
