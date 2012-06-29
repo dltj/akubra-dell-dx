@@ -1,13 +1,10 @@
 package edu.illinois.medusa;
 
 import com.caringo.client.ScspClient;
-import com.caringo.client.locate.Locator;
-import com.caringo.client.locate.RoundRobinDnsLocator;
-import com.caringo.client.locate.StaticLocator;
+import com.caringo.client.locate.*;
 import org.akubraproject.impl.AbstractBlobStore;
 import org.akubraproject.impl.StreamManager;
 
-import javax.management.RuntimeErrorException;
 import javax.transaction.Transaction;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,7 +52,7 @@ public class CaringoBlobStore extends AbstractBlobStore {
      * @return Bucket name used on storage server.
      */
     public String getBucketName() {
-        return connectionConfig.caringoBucket;
+        return connectionConfig.bucket;
     }
 
     /**
@@ -101,23 +98,8 @@ public class CaringoBlobStore extends AbstractBlobStore {
      * @param config Properties used to configure the BlobStore
      */
     protected void configFromProperties(Properties config) {
-        configConnection(config);
+        this.connectionConfig = new CaringoConfigConnection(config);
         configAuth(config);
-    }
-
-    /**
-     * Configure the BlobStore to connect to storage
-     *
-     * @param config Properties containing configuration information
-     */
-    protected void configConnection(Properties config) {
-        String host = config.getProperty("connection.host");
-        String domain = config.getProperty("connection.domain");
-        String bucket = config.getProperty("connection.bucket");
-        if (host == null || bucket == null) {
-            throw new RuntimeException("Required connection parameter for BlobStore not configured in properties file.");
-        }
-        this.connectionConfig = new CaringoConfigConnection(host, domain, bucket);
     }
 
     /**
@@ -211,17 +193,47 @@ public class CaringoBlobStore extends AbstractBlobStore {
         for (int i = 0; i < CLIENT_COUNT; i++) {
             ScspClient client = new ScspClient(locator, connectionConfig.port, connectionConfig.maxConnectionPoolSize,
                     connectionConfig.maxRetries, connectionConfig.connectionTimeout, connectionConfig.poolTimeout);
-            if (connectionConfig.caringoDomain != null)
-                client.setHostHeaderValue(connectionConfig.caringoDomain);
+            if (connectionConfig.domain != null)
+                client.setHostHeaderValue(connectionConfig.domain);
             client.start();
             clientPool[i] = client;
         }
     }
 
     protected Locator initializeLocator() {
-        String[] hosts = connectionConfig.serverURL.replaceAll("\\s", "").split(",");
-        RoundRobinDnsLocator locator = new RoundRobinDnsLocator(hosts[0], connectionConfig.port);
-        locator.start();
+        Locator locator;
+        if (connectionConfig.locatorType.equalsIgnoreCase("static")) {
+            if (connectionConfig.hosts == null)
+                throw new RuntimeException("akubra plugin error - connection.hosts must be specified for static locator");
+            String[] hosts = connectionConfig.hosts.replaceAll("\\s", "").split(",");
+            locator = new StaticLocator(hosts, connectionConfig.port, connectionConfig.locatorRetryTime);
+        } else if (connectionConfig.locatorType.equalsIgnoreCase("round_robin")) {
+            if (connectionConfig.hosts == null)
+                throw new RuntimeException("akubra plugin error - connection.hosts must be specified for round_robin locator");
+            locator = new RoundRobinDnsLocator(connectionConfig.hosts, connectionConfig.port);
+        } else if (connectionConfig.locatorType.equalsIgnoreCase("scsp_proxy")) {
+            if (connectionConfig.clusterName == null)
+                throw new RuntimeException("akubra plugin error - connection.cluster_name must be specified for proxy locator");
+            if (connectionConfig.proxyAddress == null)
+                throw new RuntimeException("akubra plugin error - connection.proxy_address must be specified for proxy locator");
+            locator = new ProxyLocator(connectionConfig.clusterName, connectionConfig.proxyAddress,
+                    connectionConfig.proxyPort, connectionConfig.locatorRetryTime);
+        } else if (connectionConfig.locatorType.equalsIgnoreCase("zeroconf")) {
+            if (connectionConfig.clusterName == null)
+                throw new RuntimeException("akubra plugin error - connection.cluster_name must be specified for zeroconf locator");
+            try {
+                locator = new ZeroconfLocator(connectionConfig.clusterName);
+            } catch (Exception e) {
+                throw new RuntimeException("akubra plugin error - problem creating zeroconf locator");
+            }
+        } else {
+            throw new RuntimeException("akubra plugin error - connection.locator_type must be static, round_robin, scsp_proxy, or zeroconf");
+        }
+        try {
+            locator.start();
+        } catch (Exception e) {
+            throw new RuntimeException("akubra plugin error - unable to start locator");
+        }
         return locator;
     }
 
