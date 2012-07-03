@@ -82,11 +82,19 @@ the jar that is needed, akubra-dell-dx-x.y-jar-with-dependencies.jar.
 
 # Install jar
 
-After you have compiled or downloaded the jar you should have jar file with a name like akubra-dell-dx-x.y-jar-with-dependencies.jar (if you compiled it yourself it will be in the target directory). This needs to be copied into the Fedora installation.
+After you have compiled or downloaded the jar you should have jar file with a name like
+akubra-dell-dx-x.y-jar-with-dependencies.jar (if you compiled it yourself it will be in the target directory).
+This needs to be copied into the Fedora installation.
 
-We recommend that you have Fedora set up but that it be empty (if there are objects in another store then Fedora's database and triple store may be confused if you start using the DX Storage). You will, however, need to start up Fedora once in order to create some directories in the Fedora installation that don't come into being until after the first start up. So if you haven't yet done so, start and stop Fedora.
+We recommend that you have Fedora set up but that it be empty (if there are objects in another store then Fedora's
+database and triple store may be confused if you start using the DX Storage). You will, however, need to start up
+Fedora once in order to create some directories in the Fedora installation that don't come into being until
+after the first start up. So if you haven't yet done so, start and stop Fedora.
 
-When this is done copy the above jar into the appropriate directory in the tomcat running fedora, typically $FEDORA_HOME/tomcat/webapps/fedora/WEB-INF/lib. We assume an analogous procedure would work for other servlet containers, although we have not confirmed this. If you are developing this plugin you may just want to soft-link to the copy in your development checkout instead.
+When this is done copy the above jar into the appropriate directory in the tomcat running fedora,
+typically $FEDORA_HOME/tomcat/webapps/fedora/WEB-INF/lib.
+We assume an analogous procedure would work for other servlet containers, although we have not confirmed this.
+If you are developing this plugin you may just want to soft-link to the copy in your development checkout instead.
 
 # Configure Fedora
 
@@ -96,11 +104,22 @@ We assume that on installation you configured Fedora to use Akubra and not the l
 
 ## Overview
 
-There are two steps - first we configure Fedora to use the akubra-dell-dx blob stores. As part of that configuration we specify a properties file that each of the blob stores will use to complete its configuration when Fedora loads it. This properties file will contain information needed to connect to the DX Storage.
+There are two steps - first we configure Fedora to use the akubra-dell-dx blob stores. As part of that configuration
+we specify a properties file that each of the blob stores will use to complete its configuration when Fedora loads it.
+This properties file will contain information needed to connect to the DX Storage.
 
 ## Configuring akubra-llstore.xml
 
-In $FEDORA_HOME/server/config there is a file called akubra-llstore.xml (in Fedora 3.5 this has moved into the spring subdirectory of the above directory, i.e. $FEDORA_HOME/server/config/spring). This is a Spring Bean config file for Akubra. Back it up. If you read it you'll see that Fedora uses two separate blob stores - one for FOXML objects and one for managed datastreams. Each of these is an org.akubraproject.map.IdMappingBlobStore, and is itself constructed from an underlying blob store and id mapper. In the default implementation these are org.akubraproject.fs.FSBlobStore and org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper. 
+In $FEDORA_HOME/server/config there is a file called akubra-llstore.xml
+(in Fedora 3.5 this has moved into the spring subdirectory of the above directory,
+i.e. $FEDORA_HOME/server/config/spring).
+This is a Spring Bean config file for Akubra. Back it up.
+If you read it you'll see that Fedora uses two separate blob stores - one for FOXML objects and one for
+managed datastreams.
+Each of these is an org.akubraproject.map.IdMappingBlobStore,
+and is itself constructed from an underlying blob store and id mapper.
+In the default implementation these are org.akubraproject.fs.FSBlobStore
+and org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper.
 
 You'll find two beans in the file that look like:
 
@@ -139,7 +158,9 @@ Now we need to define the stores and id mappers. The mappers are easy:
 
  and similarly for the datastream store mapper using the name caringoDatastreamStoreMapper.
 
-Now for the actual object stores, you need to specify a name for the store (as far as we know the exact name doesn't matter) and a path to the properties file that will have the rest of the configuration.
+Now for the actual object stores, you need to specify a name for the store
+(as far as we know the exact name doesn't matter)
+and a path to the properties file that will have the rest of the configuration.
 
     <bean name="caringoObjectStore"
     	  class="edu.illinois.medusa.FedoraObjectBlobStore"
@@ -148,27 +169,39 @@ Now for the actual object stores, you need to specify a name for the store (as f
       <constructor-arg value="/path/to/config.properties" />
     </bean>
 
-Do the same for the datastream object store, using the class FedoraDatastreamBlobStore instead of FedoraObjectBlobStore and the name caringoDatastreamStore. You might also change the store name, but we haven't noticed that it makes a difference if you do not. In most cases you can use the same properties file for both.
+Do the same for the datastream object store, using the class FedoraDatastreamBlobStore instead of FedoraObjectBlobStore
+and the name caringoDatastreamStore. You might also change the store name,
+but we haven't noticed that it makes a difference if you do not.
+In most cases you can use the same properties file for both.
 
 Delete the old fsWhatever bean definitions or comment them out.
 
 ## Properties file
 
-In the previous step you configured the BlobStores to point to a properties file. This can live anywhere on your filesystem. The same directory as akubra-llstore.xml is a fine choice. This is a standard Java properties file with keys explained below (in logically related groups). There is an example in the examples directory of the akubra-caringo source distribution.
+In the previous step you configured the BlobStores to point to a properties file.
+This can live anywhere on your filesystem. The same directory as akubra-llstore.xml is a fine choice.
+This is a standard Java properties file with keys explained below (in logically related groups).
+There is an example in the examples directory of the akubra-caringo source distribution.
 
 ### BlobStore configuration
 
 Currently this is only necessary for the FedoraBlobStore (and subclasses).
 
-* store.repository-name - the value will be used to set the x-fedora-meta-repository-name header on all stored objects. This allows for enumeration of objects in the Fedora repository by the DX Content Router Software. Ideally it should be unique in your DX Storage (i.e. if you use it for more than one instance of Fedora the values should be different for each), although there may be ways to finesse this if needed.
+* store.repository-name - the value will be used to set the x-fedora-meta-repository-name header on all stored objects.
+This allows for enumeration of objects in the Fedora repository by the DX Content Router Software.
+Ideally it should be unique in your DX Storage (i.e. if you use it for more than one instance of Fedora
+the values should be different for each), although there may be ways to finesse this if needed.
 
 ### Locator/Connection configuration 
 
-Required except as noted. Needed to actually connect to your DX Storage. There are two aspects to this, configuring a "locator" that helps the plugin find and maintain storage nodes, and configuring how it then connects to storage to transact objects with the DX Storage.
+Required except as noted. Needed to actually connect to your DX Storage.
+There are two aspects to this, configuring a "locator" that helps the plugin find and maintain storage nodes,
+and configuring how the plugin then connects to storage nodes to transact objects with the DX Storage.
 
 #### Locator configuration
 
-The locator enables the plugin to monitor traffic in order to discover new storage nodes and refrain from using any storage nodes that may be experiencing difficulty. Four different types are available as detailed below.
+The locator enables the plugin to monitor traffic in order to discover new storage nodes and refrain from using
+storage nodes that may be experiencing difficulty. Four different types are available as detailed below.
 
  * connection.locator_type - this must be one of the following: static, round_robin, scsp_proxy, or zeroconf. Each connector requires slightly different configuration:
    1. static - this uses a static list of IP addresses or hosts
@@ -200,7 +233,10 @@ The locator enables the plugin to monitor traffic in order to discover new stora
 
 (Optional, only used if all values are supplied) 
 
-Use if your bucket is protected by authentication. The supplied user must be able to perform all operations (including creation) on objects in the bucket using the supplied security realm. Note that all of the actual authentication realms, users and passwords must be set up in the normal way for DX Storage - the plugin does not do any of that.
+Use if your bucket is protected by authentication. The supplied user must be able to perform all operations
+(including creation) on objects in the bucket using the supplied security realm.
+Note that all of the actual authentication realms, users and passwords must be set up in the normal way for
+DX Storage - the plugin does not do any of that.
 
  * authentication.user - a user in the supplied realm satisfying the above
  * authentication.password - password for authentication.user
@@ -210,7 +246,16 @@ Use if your bucket is protected by authentication. The supplied user must be abl
 
 (only applicable to FedoraBlobStores and subclasses, optional, only used if enough values are supplied in the obvious sense). 
 
-You need this if you want to be able to list all blob ids, e.g. for recovery of the fedora database and indexes from raw object in storage. The simplest and typical usage would be to create a channel on the DX Content Router that publishes everything with the x-fedora-meta-repository-name header equal to store.repository-name. Then a FedoraBlobStore will be able to enumerate all of the objects, and the subclasses will be able to enumerate objects or datastreams as appropriate (they know how to filter all objects into just the FOXML objects or managed datastreams using the stored x-fedora-meta-stream-id header). In this case both of the BlobStores can share the same content-router channel. It is conceivable that someone may want to route these two classes of objects separately anyway - in this case it's fine to use two different channels as afforded by the configuration parameters below. But if you don't know why you need this it's very unlikely that you do. 
+You need this if you want to be able to list all blob ids, e.g. for recovery of the fedora database and
+indexes from raw object in storage. The simplest and typical usage would be to create a channel on the DX Content Router
+that publishes everything with the x-fedora-meta-repository-name header equal to store.repository-name.
+Then a FedoraBlobStore will be able to enumerate all of the objects, and the subclasses will be able to enumerate
+objects or datastreams as appropriate (they know how to filter all objects into just the FOXML objects or managed
+datastreams using the stored x-fedora-meta-stream-id header).
+In this case both of the BlobStores can share the same content-router channel.
+It is conceivable that someone may want to route these two classes of objects separately anyway -
+in this case it's fine to use two different channels as afforded by the configuration parameters below.
+But if you don't know why you need this it's very unlikely that you do.
 
  * content-router.host - the host or ip for the DX Content Router
  * content-router.port - the port for the DX Content Router
@@ -222,7 +267,16 @@ You need this if you want to be able to list all blob ids, e.g. for recovery of 
 
 (optional, used only by HintedBlobStores or subclasses, including the FedoraBlobStores) 
 
-These give you the ability to set metadata that will be added to every object that you store through the plugin. The key will be header.name-of-dx-header and the value simply the value you want for the header. [If you want multiple headers with the same name you can pass a value that separates them with the | character; the \ character functions as an escape - whatever character follows it appears in the value (so using it allows | or \ itself to be incorporated into a value). Note that because of the way that properties files themselves use \ as a quote character you'll have to double it up to get the desired effect]. Examples follow.
+These give you the ability to set metadata that will be added to every object that you store through the plugin.
+The key will be header.name-of-dx-header and the value simply the value you want for the header.
+If you want multiple headers with the same name you can pass a value that separates them with the | character;
+the \ character functions as an escape - whatever character follows it appears in the value
+(so using it allows | or \ itself to be incorporated into a value).
+Note that because of the way that properties files themselves use \ as a
+quote character you'll have to double it up to get the desired effect.
+
+Examples:
+
  * Let's say you want to set a Lifepoint header on every object indicating that there should be three copies in your DX Storage. You could do that by setting:
 `header.Lifepoint = [] reps=3`
 which would send the following header with each object:
@@ -233,6 +287,11 @@ which would send the following header with each object:
 
 # Check installation
 
-You should now be able to start Fedora, pull up the admin interface in a web browser, and create objects. Fedora pids map in a standard way to storage urls, so you can also check your objects directly in a web browser. For example, if you create an object with the pid 'test:1' and your Fedora is running at localhost:8080/fedora, then you can see the object through Fedora at http://localhost:8080/fedora/objects/test:1. If you are running your DX Storage at storage.url.edu with domain my.storage.domain and bucket mybucket, then you should also be able to see your object (if you've enabled authentication that will be required) at:
+You should now be able to start Fedora, pull up the admin interface in a web browser, and create objects.
+Fedora pids map in a standard way to storage urls, so you can also check your objects directly in a web browser.
+For example, if you create an object with the pid 'test:1' and your Fedora is running at localhost:8080/fedora,
+then you can see the object through Fedora at http://localhost:8080/fedora/objects/test:1.
+If you are running your DX Storage at storage.url.edu with domain my.storage.domain and bucket mybucket,
+then you should also be able to see your object (if you've enabled authentication that will be required) at:
 
 http://storage.url.edu/mybucket/info:fedora/test:1?domain=my.storage.domain
