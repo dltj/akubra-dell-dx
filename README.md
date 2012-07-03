@@ -1,51 +1,84 @@
 # Project Overview
 
-The akubra-dell-dx plugin is designed to allow you to use a the Dell DX Object Storage Platform to store data from an application that uses the Akubra framework to store blobs (most notably the Fedora Repository software). The plugin was developed against Dell DX Storage and we will use Dell terminology throughout the instructions here, but it is likely that everything will work with Caringo storage with the appropriate substitutions (e.g. using the Caringo SDK instead of the Dell Object Storage SDK, etc.).
+The akubra-dell-dx plugin is designed to allow you to use a the Dell DX Object Storage Platform to store data from an
+application that uses the Akubra framework to store blobs (most notably the Fedora Repository software). The plugin was
+developed against Dell DX Storage and we will use Dell terminology throughout the instructions here, but it is likely
+that everything will work with Caringo storage with the appropriate substitutions
+(e.g. using the Caringo SDK instead of the Dell Object Storage SDK, etc.).
 
-Moreover the plugin was developed with the intent of using it with Fedora for storage of digital objects in a repository, but it should be able to function in any application that uses Akubra with at most minimal modification. Once again, the instructions are written with the idea of using the plugin with Fedora, but you should be able to get a general sense of how that adapts to other applications.
+Moreover the plugin was developed with the intent of using it with Fedora for storage of digital objects in a
+repository, but it should be able to function in any application that uses Akubra with at most minimal modification.
+Once again, the instructions are written with the idea of using the plugin with Fedora,
+but you should be able to get a general sense of how that adapts to other applications.
+
+# About this documentation
+
+This documentation is essentially a static dump of the wiki from the Github project page at
+  https://github.com/medusa-project/akubra-dell-dx/wiki. For the latest documentation please consult the wiki.
 
 # Overview of Use
 
-We assume that you are familiar with your DX Storage and with the Fedora repository system. (or whatever other Akubra client you are using, but we will assume Fedora for our examples). Note that these instructions are written for Fedora 3.4.2 and 3.5 (with note of the differences) - small modifications may be needed for later versions of Fedora. 
+We assume that you are familiar with your DX Storage and with the Fedora repository system
+(or whatever other Akubra client you are using, but we will assume Fedora for our examples).
+Note that these instructions are written for Fedora 3.4.2 and 3.5 (with note of the differences) -
+small modifications may be needed for later versions of Fedora.
 
-These instructions are a work in progress - if you try them and have difficulty please contact us and we'll see what we can do. The most up to date documentation will be on the akubra-dell-dx Github wiki at https://github.com/medusa-project/akubra-dell-dx/wiki/Home.
+These instructions are a work in progress - if you try them and have difficulty please contact us and we'll see
+what we can do.
 
 To use the akubra-dell-dx plugin, you need to do the following things:
 
-1. [[Set up DX Storage | Set up storage]]
-2. [[Download and compile the akubra-dell-dx code, or use the precompiled jar | Download and compile]]
-3. [[Install the jar]] into your Fedora installation
-4. [[Configure your fedora installation]] to use the akubra-dell-dx plugin
-5. [[Confirm]] that everything is working
+1. Set up storage
+2. Get the jar
+3. Install the jar
+4. Configure Fedora
+5. Check your installation
 
 # Set up Storage
 
-The akubra-dell-dx adapter uses named objects in the Dell DX Storage and hence requires that you have a bucket available to store them. We also recommend that you have a tenant/domain where the bucket resides (the adapter may work with the default domain, but this is not confirmed). 
+The akubra-dell-dx adapter uses named objects in the Dell DX Storage and hence requires that you have a bucket
+available to store them. We also recommend that you have a tenant/domain where the bucket resides
+(the adapter may work with the default domain, but this is not confirmed).
 
-In addition, if you wish you may have limited authorization. Specifically the plugin may be configured to use a user and password from the security realm for operating on objects in the bucket. If you choose to do this then this user must be able to create objects in the bucket. When an object is created the same user/password/realm will be used to allow that user all permissions on the created object.
+In addition, if you wish you may have limited authorization. Specifically the plugin may be configured to use a
+user and password from the security realm for operating on objects in the bucket.
+If you choose to do this then this user must be able to create objects in the bucket.
+When an object is created the same user/password/realm will be used to allow that user all permissions
+on the created object.
 
-Consult the DX Storage documentation for how to accomplish these things - it's beyond the scope of this documentation. Later in this guide we will cover how to configure the plugin to reflect the choices that you have made here.
+Consult the DX Storage documentation for how to accomplish these things -
+it's beyond the scope of this documentation. Later in this guide we will cover how to configure the plugin
+to reflect the choices that you have made here.
 
 # Get jar
 
 ## Using precompiled jar
 
-A precompiled jar is available on [the Downloads page](https://github.com/medusa-project/akubra-dell-dx/downloads). 
+A precompiled jar is available on the downloads page for the Github project:
+https://github.com/medusa-project/akubra-dell-dx/downloads).
 
 ##  Download and compile
 
-If you wish to do this you'll need the jars that come with the DX Object Storage SDK. CAStorSDK.jar is the jar directly used by this plugin, but it depends on the other included jars, which may have modifications from their canonical counterparts (and hence cannot be replaced by them). 
+If you wish to do this you'll need the jars that come with the DX Object Storage SDK.
+CAStorSDK.jar is the jar directly used by this plugin, but it depends on the other included jars,
+which may have modifications from their canonical counterparts (and hence cannot be replaced by them).
 
 Ingest all of these into your local maven repository, e.g. 
 
 mvn install:install-file -Dfile=/path/to/jmdns-2.1.jar -DgroupId=com.caringo
 -DartifactId=jmdns -Dversion=2.1 -Dpackaging=jar
 
-Clone the code for the akubra-dell-dx project. Depending on the version of the Dell Object Storage SDK that you have you may need to modify the root level pom.xml in order to make the versions match those of the jars you've ingested and that go along with your version of the CAStorSDK.jar jar. 
+Clone the code for the akubra-dell-dx project. Depending on the version of the Dell Object Storage SDK
+that you have you may need to modify the root level pom.xml in order to make the versions match those of the jars
+you've ingested and that go along with your version of the CAStorSDK.jar jar.
 
-Once that is done you should be able to build the jar that you need by doing 'mvn package -DskipTests' at the root level. If you want to do the tests you need to go to src/test/java/edu/illinois/medusa, copy test-config.properties.example to test-config.properties, and fill in appropriate configuration options to access a bucket on your DX Storage that can be used for testing. Then just do 'mvn package' at the root level.
+Once that is done you should be able to build the jar that you need by doing 'mvn package -DskipTests'
+at the root level. If you want to do the tests you need to go to src/test/java/edu/illinois/medusa,
+copy test-config.properties.example to test-config.properties, and fill in appropriate configuration options
+to access a bucket on your DX Storage that can be used for testing. Then just do 'mvn package' at the root level.
 
-After this is complete a 'target' directory should have been created at the root level which will contain the jar that is needed, akubra-dell-dx-x.y-jar-with-dependencies.jar.
+After this is complete a 'target' directory should have been created at the root level which will contain
+the jar that is needed, akubra-dell-dx-x.y-jar-with-dependencies.jar.
 
 # Install jar
 
