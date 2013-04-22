@@ -221,7 +221,7 @@ public class CaringoHintsProvider implements FedoraStorageHintProvider {
 	
 	/**
 	 * Add object headers according to the config file to the metadata map for the DigitalObject
-	 * Acceptable values for header: [createDT,label,lastModDT,ownerID,state]. Any other header value in the config will be tried as an external property
+	 * Acceptable values for header: [createDT,label,lastModDT,ownerID,state]. Any other header value in the config will be ignored
 	 * 
 	 * @param object: The DigitalObject for which metadata is to be added
 	 * @param metadata: a map which contains all metadata to be added for the object
