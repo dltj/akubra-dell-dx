@@ -212,6 +212,23 @@ cases you can use the same properties file for both.
 
 Delete the old fsWhatever bean definitions or comment them out.
 
+** For enabling the feature of sending metadat from Fedora to the low level storage(dell in our case),
+you will need to replace the following bean definition in akubra-llstore.xml:
+
+    <bean name="fedoraStorageHintProvider"
+    	class="org.fcrepo.server.storage.NullStorageHintsProvider"
+    	singleton="true">
+    </bean>
+
+with this:
+
+    <bean name="fedoraStorageHintProvider"
+    	class="edu.illinois.medusa.CaringoHintsProvider"
+    	singleton="true">
+    	<constructor-arg value="/path/to/config.properties" />
+    </bean>
+
+
 ## Properties file
 
 In the previous step you configured the BlobStores to point to a
@@ -343,6 +360,14 @@ which would send the following header with each object:
  * If you want to set a blank header, use | as the value alone. I.e. to set x-fedora-meta-blank at blank, use `header.x-fedora-meta-blank = |`.
  * Finally, let's say you want to set the x-fedora-meta-example header with the values `ab\\c`, `de|`, and `fg`. Then you'd do `header.x-fedora-meta-example = ab\\\\\\\\c|de\\||fg`. Because of the way that Java properties file quoting works, this will pass the value `ab\\\\c|de\||fg` to the plugin. Because the plugin interprets \ as a quoting character and parses from left to right it will see the value `ab\\c` then a | separating values, then `de|` (it sees the first pipe as part of the value because it is quoted), then another | separating values, and finally `fg`. 
 
+### Object Headers(sent from Fedora)
+ * fedora-headers.object - comma separated string of values from [createDT,label,lastModDT,ownerID,state]. Other values will be ignored.
+
+### Datastream Headers(sent from Fedora)
+ * fedora-headers.datastream - comma separated string of values from [createDT,state,versionable,versionID,label,checksum,checksumType,controlGrp,formatURI,infoType,location,locationType]. Other values will be ignored
+
+### Dublin Core Headers(sent from Fedora)
+ * fedora-headers.dublin-core - comma separated string of values from [title,creator,subject,description,publisher,contributor,date,type,format,identifier,source,language,relation,coverage,rights]. Other values will be ignored.
 # Check installation
 
 You should now be able to start Fedora, pull up the admin interface in
