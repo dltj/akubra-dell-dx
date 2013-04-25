@@ -212,7 +212,7 @@ cases you can use the same properties file for both.
 
 Delete the old fsWhatever bean definitions or comment them out.
 
-** For enabling the feature of sending metadat from Fedora to the low level storage(dell in our case),
+** For enabling the feature of sending metadata from Fedora to the low level storage(akubra store in our case),
 you will need to replace the following bean definition in akubra-llstore.xml:
 
     <bean name="fedoraStorageHintProvider"
