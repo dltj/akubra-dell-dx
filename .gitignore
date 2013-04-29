@@ -6,3 +6,7 @@ target/
 *.iml
 src/test/java/edu/illinois/medusa/test-config.properties
 tmp/
+.classpath
+.project
+.settings/
+test-output/

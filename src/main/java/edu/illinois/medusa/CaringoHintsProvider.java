@@ -98,7 +98,7 @@ public class CaringoHintsProvider implements FedoraStorageHintProvider {
 	private void addDatastreamMetadataForDataStream(DigitalObject object, Datastream ds, Map<String,String> metadata){
 		String ds_full_path = object.getPid()+"/"+ds.DatastreamID+"/"+ds.DSVersionID;
 		metadata.put(":Content-Type",ds.DSMIME);
-		//metadata.put(":Content-Disposition",ds_full_path);
+		metadata.put(":Content-Disposition",ds_full_path);
 		metadata.put("fedora:stream-id","info:fedora/"+ds_full_path);
 
 		if(datastreamHeaders.isEmpty())
@@ -277,8 +277,8 @@ public class CaringoHintsProvider implements FedoraStorageHintProvider {
 			DigitalObject object) {
 		Map<String,String> metadata = new HashMap<String, String>();
 		metadata.put(":Content-Type","text/xml");
-		//metadata.put(":Content-Disposition",object.getPid());
-		metadata.put(":x-fedora-meta-stream-id","info:fedora/"+object.getPid());
+		metadata.put(":Content-Disposition",object.getPid());
+		metadata.put("fedora:stream-id","info:fedora/"+object.getPid());
 		if(!objectHeaders.isEmpty())
 			addObjectMetadataForDigitalObject(object, metadata);
 		if(!dublinCoreHeaders.isEmpty())

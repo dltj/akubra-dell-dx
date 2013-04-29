@@ -19,7 +19,7 @@ public class FedoraBlob extends HintedBlob {
      */
     protected FedoraBlob(FedoraBlobStoreConnection owner, URI id, CaringoHints hints) {
         super(owner, id, hints);
-        this.hintAdders.add(new HintIdAdder("fedora:stream-id"));
+        //this.hintAdders.add(new HintIdAdder("fedora:stream-id"));
         this.hintAdders.add(new HintMD5Adder());
     }
 

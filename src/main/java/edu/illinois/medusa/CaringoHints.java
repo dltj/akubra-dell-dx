@@ -5,7 +5,9 @@ import com.caringo.client.ScspHeaders;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Encapsulate and work with hints. The idea is to use the Akubra concept of hints to help manage
@@ -160,8 +162,12 @@ public class CaringoHints extends HashMap<String, String> {
     public void augmentScspHeaders(ScspHeaders headers) {
         for (Map.Entry<String, String> entry : this.entrySet()) {
             String headerName = metadataHeaderName(entry.getKey());
+            Set<String> valueSet = new HashSet<String>();
             for (String value : this.getValues(entry.getKey())) {
-                headers.addValue(headerName, value);
+            	if(!valueSet.contains(value)){
+            		headers.addValue(headerName, value);
+            		valueSet.add(value);
+            	}
             }
         }
     }

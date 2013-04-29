@@ -15,3 +15,9 @@ authentication.realm = medusa.grainger.illinois.edu/test
 header.x-config-meta-header = test-value
 header.x-config-meta-header-2 = test-value-\\|-1|test-value-\\\\-2
 
+#fedora-headers.datastream can be comma separated string of values from [createDT,state,versionable,versionID,label,checksum,checksumType,controlGrp,formatURI,infoType,location,locationType]. Other values will be ignored
+fedora-headers.datastream = createDT,state,versionable,versionID,label,checksum,checksumType,controlGrp,formatURI,infoType,location,locationType
+#fedora-headers.object can be comma separated string of values from [createDT,label,lastModDT,ownerID,state]. Other values will be ignored.
+fedora-headers.object = createDT,label,lastModDT,ownerID,state
+#fedora-headers.dublin-core can be comma separated string of values from [title,creator,subject,description,publisher,contributor,date,type,format,identifier,source,language,relation,coverage,rights]. Other values will be ignored.
+fedora-headers.dublin-core = date,type,format,source,language,title,identifier

@@ -45,6 +45,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.fcrepo</groupId>
+            <artifactId>server</artifactId>
+            <version>3.6.2</version>    
+        </dependency>
+        <dependency>
             <groupId>org.akubraproject</groupId>
             <artifactId>akubra-core</artifactId>
             <version>0.3</version>
